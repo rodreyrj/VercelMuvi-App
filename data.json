@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://i.postimg.cc/tJqrc6yx/culp.png",
+    "nombre": "Culpa Mía - Película Completa",
+    "embed": "https://powvideo.org/embed-2rrogwot4b90-954x562.html"
+  },
+  {
+    "url": "https://i.postimg.cc/tJqrc6yx/culp.png",
+    "nombre": "Culpa Mía - Escena Extra 1",
+    "embed": "https://www.youtube.com/embed/ejemplo_escena_extra1"
+  },
+  {
+    "url": "https://ejemplo.com/portada_otra_serie.jpg",
+    "nombre": "Otra Serie - Capítulo 1",
+    "embed": "https://www.youtube.com/embed/ejemplo_otra_serie_c1"
+  },
+  {
+    "url": "https://ejemplo.com/portada_otra_serie.jpg",
+    "nombre": "Otra Serie - Capítulo 2",
+    "embed": "https://www.youtube.com/embed/ejemplo_otra_serie_c2"
+  }
+]
