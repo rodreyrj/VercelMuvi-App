@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta name="viewport" content="width=1280, initial-scale=0.5"> 
     <title>VercelMuvi - Tu Plataforma de Streaming</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -316,7 +316,6 @@
             }
 
             // 2. CORRECCIÓN CLAVE PARA POWVIDEO (Eliminar el parámetro de tamaño: -954x562.html)
-            // Esto es crucial para que se cargue de forma limpia y sin Captcha forzado.
             videoSource = videoSource.replace(/-\d+x\d+\.html/i, '.html');
 
             // 3. APLICAR EL PARÁMETRO ANTI-CAPCHA (AutoPlay)
@@ -362,8 +361,9 @@
                                 frameborder="0" 
                                 allowfullscreen 
                                 title="Reproductor de ${currentItem.nombre}"
-                                allow="autoplay; fullscreen" 
-                                sandbox="allow-scripts allow-same-origin allow-popups allow-presentation" 
+                                // Se añade 'allow-top-navigation' que es CRÍTICO para que Powvideo cargue después del Captcha.
+                                // Se elimina 'sandbox' para máxima compatibilidad con el reproductor de video.
+                                allow="autoplay; fullscreen; encrypted-media; gyroscope; picture-in-picture; allow-top-navigation" 
                             ></iframe>
                         </div>
                     </div>
