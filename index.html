@@ -11,12 +11,12 @@
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Dark Blue Gray */
         }
-        /* La clase .aspect-video-wrapper ya no será para el reproductor en la misma página,
-           pero la mantenemos por si decides reutilizarla en otro contexto o para el futuro. */
+        /* Clase para el reproductor de video (Aspect Ratio 16:9) */
         .aspect-video-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            /* Ajustado para ser más alto en móvil, pero mantener 16:9 si es posible */
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */ 
             height: 0;
             overflow: hidden;
             background-color: #000;
@@ -27,6 +27,14 @@
             left: 0;
             width: 100%;
             height: 100%;
+        }
+
+        /* Responsive adjustments for the video player container */
+        @media (max-width: 640px) { /* On small screens (mobile) */
+            .aspect-video-wrapper {
+                /* Podemos hacerlo un poco más alto en móvil si se desea */
+                /* padding-bottom: 65%; /* Por ejemplo, 16:10 para ocupar más verticalmente */ 
+            }
         }
     </style>
 </head>
@@ -302,7 +310,7 @@
             const partsList = group.items.map(item => `
                 <li 
                     class="p-4 border-b border-gray-700 last:border-b-0 hover:bg-indigo-900/20 transition duration-150 cursor-pointer rounded-lg"
-                    onclick="openVideoInNewTab('${item.embed.replace(/'/g, "\\'")}', '${item.nombre.replace(/'/g, "\\'")}')"
+                    onclick="renderPlayer('${item.embed.replace(/'/g, "\\'")}', '${item.nombre.replace(/'/g, "\\'")}')"
                 >
                     <span class="font-semibold text-white text-lg">${item.nombre}</span>
                     <span class="text-sm text-gray-400 block">Clic para ver</span>
@@ -346,31 +354,72 @@
             window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
         }
         
-        // --- NUEVA FUNCIÓN: Abre el video en una nueva pestaña ---
-        window.openVideoInNewTab = function(embedUrl, title) { 
-            let finalUrl = embedUrl;
+        // --- FUNCIÓN renderPlayer (restaurada y mejorada) ---
+        window.renderPlayer = function(embedUrl, title) { 
+            clearContent();
+            const content = document.getElementById('content');
+            
+            document.getElementById('current-title').textContent = title;
 
-            // Extrae la URL real si el embedUrl es un iframe completo
+            let videoSource = embedUrl;
+
+            // Intenta extraer la URL src si es un iframe completo
             if (embedUrl.toLowerCase().startsWith('<iframe')) {
                 const match = embedUrl.match(/src=["'](.*?)["']/i);
                 if (match && match[1]) {
-                    finalUrl = match[1];
+                    videoSource = match[1];
                 } else {
-                    console.warn(`[VercelMuvi] No se pudo extraer la URL del iframe. Usando el contenido completo del embed: ${embedUrl}`);
-                    // Para iframes que no tienen un 'src' simple, a veces es mejor abrir una página con el iframe completo.
-                    // Para simplificar, si no extrae el src, simplemente abrimos el embed tal cual.
-                    // Si deseas una página intermedia con el iframe, sería un paso más complejo.
-                    // Por ahora, abrimos la URL tal cual si no se extrajo el src.
-                    // Una alternativa más robusta podría ser crear una página HTML mínima y abrirla.
-                    // Para powvideo, usualmente el embed es la URL directa.
+                    console.warn(`[VercelMuvi] No se pudo extraer la URL 'src' del iframe. Usando el contenido completo del embed: ${embedUrl}`);
                 }
             }
             
-            // Abre una nueva pestaña con la URL del video
-            window.open(finalUrl, '_blank');
+            content.innerHTML = `
+                <div class="container mx-auto px-4 py-8">
+                    <button onclick="history.back()" class="text-indigo-400 hover:text-indigo-300 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Volver a la Lista
+                    </button>
+                    
+                    <h1 class="text-3xl font-extrabold text-white mb-4">${title}</h1>
+                    
+                    <div class="aspect-video-wrapper rounded-xl shadow-2xl mb-4"> 
+                        <iframe 
+                            src="${videoSource}" 
+                            frameborder="0" 
+                            allowfullscreen 
+                            title="Reproductor de ${title}"
+                            sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+                        ></iframe>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <button 
+                            onclick="openInNewTab('${videoSource}')" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center mx-auto"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                            Abrir en Pestaña Completa (Si hay problemas)
+                        </button>
+                    </div>
+
+                    <p class="text-gray-400 mt-4 text-center">
+                        Si el video no carga, hay publicidad o requiere verificación, usa el botón "Abrir en Pestaña Completa".
+                    </p>
+                </div>
+            `;
+            window.history.pushState({ view: 'player', url: embedUrl }, title, `#player/${encodeURIComponent(title)}`);
         }
 
-        // --- Vista "Acerca de" (sin cambios) ---
+        // --- Nueva función auxiliar para abrir en nueva pestaña ---
+        window.openInNewTab = function(url) {
+            window.open(url, '_blank');
+        }
+
         window.renderAbout = function() { 
             clearContent();
             document.getElementById('current-title').textContent = 'Acerca de';
@@ -411,12 +460,12 @@
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mr-3">
                                 <path d="M12.001 2c-5.522 0-10 4.477-10 10 0 3.033 1.34 5.762 3.493 7.61l-.678 2.017 2.083-.65 2.158.749 4.945-4.832c3.486-1.743 5.495-5.32 5.01-9.176-.485-3.856-3.882-6.843-7.893-6.843zm4.562 10.98c-.18.12-.392.18-.636.18h-.001c-.244 0-.466-.06-.677-.18s-.36-.28-.54-.42c-.18-.14-.36-.33-.48-.54s-.22-.48-.22-.72c0-.24.08-.48.22-.72s.3-.41.51-.59c.21-.18.42-.31.64-.39.22-.08.48-.12.78-.12h.001c.3 0 .56.04.78.12s.39.21.57.39c.18.18.3.37.38.6s.12.42.12.72c0 .24-.04.48-.12.72s-.21.46-.39.63z" fill="#FFF"/>
-                                </svg>
-                                Pedir Serie o Película
-                            </a>
-                        </div>
+                            </svg>
+                            Pedir Serie o Película
+                        </a>
                     </div>
-                `;
+                </div>
+            `;
         }
         
         // --- NAVEGACIÓN Y CONTROL DE ESTADO ---
@@ -440,7 +489,13 @@
                     renderAbout();
                 } else if (event.state.view === 'details') {
                     renderDetails(event.state.key);
-                } 
+                } else if (event.state.view === 'player') { // Al volver del reproductor, volvemos a detalles
+                    // Necesitamos una forma de saber a qué detalles volver.
+                    // En este caso, simplemente volverá a Home si no se guarda la clave de detalle.
+                    // Para una experiencia perfecta, necesitarías guardar el 'portadaKey' del detalle
+                    // en el estado del historial del reproductor. Por ahora, volverá a Home.
+                    history.back(); // Vuelve un paso más si el reproductor está en el historial
+                }
             } else {
                 navigateTo('home', ''); 
             }
@@ -471,8 +526,17 @@
             document.getElementById('nav-home').addEventListener('click', () => navigateTo('home'));
             document.getElementById('nav-about').addEventListener('click', () => navigateTo('about'));
             
-            if (!history.state) {
-                window.history.replaceState({ view: 'home', filter: '' }, 'VercelMuvi - Inicio', '#home');
+            // Verifica la URL al cargar la página para saber qué vista renderizar
+            if (location.hash.startsWith('#details/')) {
+                const key = decodeURIComponent(location.hash.split('#details/')[1]);
+                renderDetails(key);
+            } else if (location.hash.startsWith('#player/')) {
+                // Al cargar directamente en un reproductor, regresamos un paso
+                history.back(); 
+            } else if (location.hash === '#about') {
+                renderAbout();
+            } else {
+                navigateTo('home', ''); 
             }
         };
     </script>
