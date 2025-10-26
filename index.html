@@ -82,11 +82,10 @@
         const WHATSAPP_NUMBER = '573001234567'; 
         const ADMIN_EMAIL = 'contacto@vercelmuvi.com'; 
         
-        // **NUEVA CONFIGURACIÓN:** Número de tarjetas a mostrar antes del botón "Ver Más"
         const MAX_INITIAL_CARDS = 5; 
         
         let groupedData = []; 
-        let currentMaxCards = MAX_INITIAL_CARDS; // Estado para controlar cuántas tarjetas se muestran
+        let currentMaxCards = MAX_INITIAL_CARDS; 
         
         // --- LÓGICA DE PROCESAMIENTO DE DATOS ---
 
@@ -149,7 +148,6 @@
                 if (!groups[key]) {
                     groups[key] = {
                         portada: key,
-                        // Título principal basado en la parte antes del primer ' - ' o el nombre completo.
                         title: item.nombre.includes(' - ') ? item.nombre.split(' - ')[0].trim() : item.nombre.trim(), 
                         items: []
                     };
@@ -164,17 +162,13 @@
             return Object.values(groups).sort((a, b) => a.title.localeCompare(b.title));
         }
 
-        // Función para mostrar más tarjetas (usada por el botón "Ver Más")
         window.showMoreCards = function() {
-            // Aumenta el límite de tarjetas a mostrar (por ejemplo, 5 más)
             currentMaxCards += MAX_INITIAL_CARDS; 
-            // Vuelve a renderizar la vista de inicio con el nuevo límite
             renderHome(document.getElementById('search-input').value);
         }
 
         async function loadData() {
             const content = document.getElementById('content');
-            // ... (código de carga y manejo de errores del JSON, es igual al anterior) ...
             content.innerHTML = `
                 <div class="flex flex-col items-center justify-center p-10 text-lg text-indigo-400">
                     <svg class="animate-spin h-8 w-8 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -223,7 +217,6 @@
             document.getElementById('content').innerHTML = '';
         }
 
-        // 1. Vista de Portadas (Home) - **MODIFICADA** para Responsividad y "Ver Más"
         window.renderHome = function(filterText = '') { 
             clearContent();
             document.getElementById('current-title').textContent = 'Inicio';
@@ -236,7 +229,6 @@
                 group.items.some(item => item.nombre.toLowerCase().includes(lowerCaseFilter))
             );
 
-            // Determinar qué grupos se muestran (por el límite de 5)
             const groupsToShow = filteredGroups.slice(0, currentMaxCards);
             const hasMoreCards = filteredGroups.length > currentMaxCards;
             
@@ -279,9 +271,6 @@
                 `;
             }
 
-            // NOTA CLAVE DE RESPONSIVIDAD: 
-            // Las clases de grid son las que hacen la magia de adaptación:
-            // grid-cols-2 (móvil pequeño) -> sm:grid-cols-3 (móvil grande/tablet vertical) -> md:grid-cols-4 (tablet horizontal) -> lg:grid-cols-5 (PC)
             content.innerHTML = `
                 <div class="container mx-auto px-4 py-8">
                     <h2 class="text-3xl font-extrabold text-white mb-6">Contenido Agrupado</h2>
@@ -297,7 +286,6 @@
             document.getElementById('search-input').value = filterText;
         }
 
-        // 2. Vista de Detalles (Capítulos/Partes)
         window.renderDetails = function(portadaKey) { 
             clearContent();
             const content = document.getElementById('content');
@@ -322,9 +310,6 @@
 
             const fallbackSrc = 'https://placehold.co/300x450/312e81/ffffff?text=VercelMuvi';
             
-            // NOTA CLAVE DE RESPONSIVIDAD: 
-            // La clase "md:flex" hace que la portada y la lista de capítulos se apilen en móvil, 
-            // pero se pongan lado a lado en pantallas medianas (md) y grandes.
             content.innerHTML = `
                 <div class="container mx-auto px-4 py-8">
                     <button onclick="navigateTo('home')" class="text-indigo-400 hover:text-indigo-300 mb-6 flex items-center">
@@ -360,10 +345,11 @@
             window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
         }
         
-        // 3. Vista del Reproductor de Video
+        // 3. Vista del Reproductor de Video - **MODIFICADA** para Pantalla Completa en Móvil
         window.renderPlayer = function(embedUrl, title) { 
             clearContent();
-            // ... (el resto del código del reproductor es igual) ...
+            const content = document.getElementById('content');
+            
             document.getElementById('current-title').textContent = title;
 
             let videoSource = embedUrl;
@@ -392,6 +378,7 @@
                     
                     <div class="aspect-video-wrapper rounded-xl shadow-2xl"> 
                         <iframe 
+                            id="videoPlayer" // <-- Añadimos un ID para poder referenciarlo
                             src="${videoSource}" 
                             frameborder="0" 
                             allowfullscreen 
@@ -403,11 +390,43 @@
                 </div>
             `;
             window.history.pushState({ view: 'player', url: embedUrl }, title, `#player/${encodeURIComponent(title)}`);
+
+            // --- Lógica para intentar pantalla completa automáticamente ---
+            const videoPlayer = document.getElementById('videoPlayer');
+            if (videoPlayer) {
+                // Función para solicitar pantalla completa
+                const requestFullScreen = () => {
+                    if (videoPlayer.requestFullscreen) {
+                        videoPlayer.requestFullscreen();
+                    } else if (videoPlayer.mozRequestFullScreen) { /* Firefox */
+                        videoPlayer.mozRequestFullScreen();
+                    } else if (videoPlayer.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                        videoPlayer.webkitRequestFullscreen();
+                    } else if (videoPlayer.msRequestFullscreen) { /* IE/Edge */
+                        videoPlayer.msRequestFullscreen();
+                    }
+                };
+
+                // Comprobamos si es un dispositivo móvil antes de intentar la pantalla completa
+                // Esto es una heurística y no es 100% infalible, pero funciona bien la mayoría de las veces.
+                const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    // Intenta solicitar pantalla completa una vez que el iframe esté cargado
+                    // Se usa un pequeño retardo para dar tiempo a que el iframe se inicialice.
+                    setTimeout(() => {
+                        requestFullScreen();
+                    }, 500); // 500 ms de retardo
+                    
+                    // Nota: Algunos navegadores móviles (especialmente iOS Safari) pueden requerir 
+                    // una interacción directa del usuario (un clic en un botón) para entrar 
+                    // en pantalla completa. Esta es una limitación de seguridad de los navegadores.
+                    // Sin embargo, muchos embeds de video modernos gestionan esto internamente.
+                }
+            }
         }
 
-        // 4. Vista "Acerca de"
         window.renderAbout = function() { 
-             // ... (código de la vista Acerca de es igual) ...
             clearContent();
             document.getElementById('current-title').textContent = 'Acerca de';
             
@@ -447,19 +466,19 @@
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mr-3">
                                 <path d="M12.001 2c-5.522 0-10 4.477-10 10 0 3.033 1.34 5.762 3.493 7.61l-.678 2.017 2.083-.65 2.158.749 4.945-4.832c3.486-1.743 5.495-5.32 5.01-9.176-.485-3.856-3.882-6.843-7.893-6.843zm4.562 10.98c-.18.12-.392.18-.636.18h-.001c-.244 0-.466-.06-.677-.18s-.36-.28-.54-.42c-.18-.14-.36-.33-.48-.54s-.22-.48-.22-.72c0-.24.08-.48.22-.72s.3-.41.51-.59c.21-.18.42-.31.64-.39.22-.08.48-.12.78-.12h.001c.3 0 .56.04.78.12s.39.21.57.39c.18.18.3.37.38.6s.12.42.12.72c0 .24-.04.48-.12.72s-.21.46-.39.63z" fill="#FFF"/>
-                            </svg>
-                            Pedir Serie o Película
-                        </a>
+                                </svg>
+                                Pedir Serie o Película
+                            </a>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
         }
         
         // --- NAVEGACIÓN Y CONTROL DE ESTADO ---
         
         window.navigateTo = function(view, data = '') { 
             if (view === 'home') {
-                currentMaxCards = MAX_INITIAL_CARDS; // Reinicia el contador de tarjetas al volver a inicio
+                currentMaxCards = MAX_INITIAL_CARDS; 
                 renderHome(data); 
                 window.history.pushState({ view: 'home', filter: data }, 'VercelMuvi - Inicio', '#home');
             } else if (view === 'about') {
@@ -468,13 +487,9 @@
             }
         }
         
-        // Manejador del botón de retroceso del navegador
         window.onpopstate = (event) => {
             if (event.state) {
                 if (event.state.view === 'home') {
-                    // Si volvemos a casa desde el historial, mantenemos todas las tarjetas que ya se hayan cargado.
-                    // Para que no salte el "Ver Más" si ya lo había presionado.
-                    // Podríamos resetear aquí si quisiéramos, pero mantener el estado es mejor.
                     renderHome(event.state.filter || '');
                 } else if (event.state.view === 'about') {
                     renderAbout();
@@ -482,7 +497,7 @@
                     renderDetails(event.state.key);
                 } 
             } else {
-                navigateTo('home', ''); // Si no hay estado, vamos a la página de inicio
+                navigateTo('home', ''); 
             }
         };
 
@@ -496,7 +511,6 @@
             
             const performSearch = () => {
                 const query = searchInput.value;
-                // Al buscar, reiniciamos el contador de tarjetas, ya que se aplica el filtro
                 currentMaxCards = MAX_INITIAL_CARDS; 
                 navigateTo('home', query);
             };
