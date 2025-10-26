@@ -11,6 +11,25 @@
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Dark Blue Gray */
         }
+        /* Contenedor del reproductor para mantener el aspecto y centrarlo */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* Aspect Ratio 16:9 */
+            height: 0;
+            overflow: hidden;
+            background-color: #000; /* Fondo negro */
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        /* Estilo del iframe para ocupar todo el contenedor */
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body class="min-h-screen text-white">
@@ -63,9 +82,7 @@
     <script>
         // --- CONFIGURACIÓN Y DATOS ---
         const DATA_URL = 'data.json'; 
-        // Cambia este número por el tuyo.
         const WHATSAPP_NUMBER = '573001234567'; 
-        // Cambia este correo por el tuyo.
         const ADMIN_EMAIL = 'contacto@vercelmuvi.com'; 
         
         const MAX_INITIAL_CARDS = 5; 
@@ -134,7 +151,6 @@
                 if (!groups[key]) {
                     groups[key] = {
                         portada: key,
-                        // Intenta sacar el nombre de la serie/película si el nombre tiene el formato "Titulo - Capítulo"
                         title: item.nombre.includes(' - ') ? item.nombre.split(' - ')[0].trim() : item.nombre.trim(), 
                         items: []
                     };
@@ -142,12 +158,10 @@
                 groups[key].items.push(item);
             });
 
-            // Ordenar capítulos/partes alfabéticamente
             for (const key in groups) {
                 groups[key].items.sort((a, b) => a.nombre.localeCompare(b.nombre));
             }
 
-            // Devolver los grupos ordenados por título
             return Object.values(groups).sort((a, b) => a.title.localeCompare(b.title));
         }
 
@@ -203,7 +217,6 @@
             const content = document.getElementById('content');
             const lowerCaseFilter = filterText.toLowerCase();
 
-            // Filtrar grupos por título o por el nombre de algún capítulo
             const filteredGroups = groupedData.filter(group => 
                 group.title.toLowerCase().includes(lowerCaseFilter) || 
                 group.items.some(item => item.nombre.toLowerCase().includes(lowerCaseFilter))
@@ -213,7 +226,6 @@
             const hasMoreCards = filteredGroups.length > currentMaxCards;
             
             const cardsHtml = groupsToShow.map(group => {
-                // Imagen de respaldo si la portada falla
                 const fallbackSrc = 'https://placehold.co/250x375/312e81/ffffff?text=VercelMuvi';
                 
                 return `
@@ -266,32 +278,60 @@
             `;
             document.getElementById('search-input').value = filterText;
         }
-
+        
+        // Función principal de la vista de Detalles (Ahora incluye el reproductor)
         window.renderDetails = function(portadaKey) { 
             clearContent();
             const content = document.getElementById('content');
             const group = groupedData.find(g => g.portada === portadaKey);
 
-            if (!group) {
+            if (!group || group.items.length === 0) {
                 renderHome(); 
                 return;
             }
             
+            // Cargar el primer item por defecto, como en el sitio que enviaste
+            const defaultItem = group.items[0]; 
+            
             document.getElementById('current-title').textContent = group.title;
             
-            // Cada elemento de la lista ahora llama a openVideoInNewTab
+            // Renderizar la vista de detalles y cargar el reproductor del primer capítulo
+            renderDetailsAndPlayer(group, defaultItem);
+
+            window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
+        }
+
+        // Nueva función para renderizar la vista de detalles Y el reproductor
+        window.renderDetailsAndPlayer = function(group, currentItem) {
+            const content = document.getElementById('content');
+            
+            let videoSource = currentItem.embed;
+
+            // Intenta extraer la URL src si es un iframe completo
+            if (currentItem.embed.toLowerCase().startsWith('<iframe')) {
+                const match = currentItem.embed.match(/src=["'](.*?)["']/i);
+                if (match && match[1]) {
+                    videoSource = match[1];
+                } else {
+                    console.warn(`[VercelMuvi] No se pudo extraer la URL 'src' del iframe. Usando el contenido completo del embed.`);
+                }
+            }
+            
             const partsList = group.items.map(item => `
                 <li 
-                    class="p-4 border-b border-gray-700 last:border-b-0 hover:bg-indigo-900/20 transition duration-150 cursor-pointer rounded-lg"
-                    onclick="openVideoInNewTab('${item.embed.replace(/'/g, "\\'")}', '${item.nombre.replace(/'/g, "\\'")}')"
+                    class="p-4 border-b border-gray-700 last:border-b-0 transition duration-150 cursor-pointer rounded-lg 
+                    ${item.nombre === currentItem.nombre ? 'bg-indigo-600/50 text-white font-bold' : 'hover:bg-indigo-900/20'}"
+                    onclick="renderDetailsAndPlayer(groupedData.find(g => g.portada === '${group.portada.replace(/'/g, "\\'")}') , 
+                                                    groupedData.find(g => g.portada === '${group.portada.replace(/'/g, "\\'")}')
+                                                               .items.find(i => i.nombre === '${item.nombre.replace(/'/g, "\\'")}') )"
                 >
-                    <span class="font-semibold text-white text-lg">${item.nombre}</span>
-                    <span class="text-sm text-gray-400 block">Clic para ver (Abre en nueva pestaña)</span>
+                    <span class="text-lg">${item.nombre}</span>
+                    ${item.nombre === currentItem.nombre ? '<span class="text-sm text-white/70 block">Viendo ahora</span>' : ''}
                 </li>
             `).join('');
 
             const fallbackSrc = 'https://placehold.co/300x450/312e81/ffffff?text=VercelMuvi';
-            
+
             content.innerHTML = `
                 <div class="container mx-auto px-4 py-8">
                     <button onclick="navigateTo('home')" class="text-indigo-400 hover:text-indigo-300 mb-6 flex items-center">
@@ -301,6 +341,26 @@
                         Volver a Portadas
                     </button>
                     
+                    <h1 class="text-3xl font-extrabold text-white mb-4">${group.title} - ${currentItem.nombre}</h1>
+
+                    <div class="bg-gray-900 rounded-xl shadow-2xl mb-8 p-1">
+                        <div class="bg-red-900/50 border border-red-700 p-3 rounded-t-xl mb-1 text-center">
+                            <p class="text-sm text-yellow-300 font-semibold">
+                                ⚠️ **Advertencia:** Al cargar, podría requerir un Captcha y/o varios toques en la pantalla para iniciar la reproducción (el problema de "pantalla negra").
+                            </p>
+                        </div>
+                        
+                        <div class="video-container">
+                            <iframe 
+                                src="${videoSource}" 
+                                frameborder="0" 
+                                allowfullscreen 
+                                title="Reproductor de ${currentItem.nombre}"
+                                // Se usa la sandbox para mejorar la seguridad, pero puede restringir funcionalidades.
+                                sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+                            ></iframe>
+                        </div>
+                    </div>
                     <div class="md:flex bg-gray-800/50 rounded-xl p-6 shadow-2xl">
                         <div class="md:w-1/3 flex justify-center mb-6 md:mb-0">
                             <img 
@@ -311,15 +371,9 @@
                             />
                         </div>
                         <div class="md:w-2/3 md:pl-8">
-                            <h1 class="text-4xl font-extrabold text-white mb-4">${group.title}</h1>
+                            <h2 class="text-3xl font-bold text-white mb-4">Lista de Capítulos</h2>
                             <p class="text-indigo-400 text-lg mb-6">${group.items.length} Partes o Capítulos Disponibles</p>
                             
-                            <div class="bg-yellow-900/50 border border-yellow-700 p-4 rounded-lg mb-4">
-                                <p class="text-yellow-300 font-semibold text-sm">
-                                    ⚠️ **Aviso:** Para asegurar la mejor reproducción y evitar la molesta "pantalla negra", cada capítulo se abrirá en una **nueva pestaña** donde el reproductor externo funciona perfectamente.
-                                </p>
-                            </div>
-
                             <div class="bg-gray-900 rounded-lg shadow-inner max-h-96 overflow-y-auto">
                                 <ul class="divide-y divide-gray-700">
                                     ${partsList}
@@ -327,29 +381,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="text-center mt-8">
+                        <button 
+                            onclick="window.open('${videoSource}', '_blank')" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center mx-auto"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                            Abrir en Pestaña Completa (Si hay problemas)
+                        </button>
+                    </div>
+
                 </div>
             `;
-            
-            window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
+            // Forzar el cambio de historial para que el botón back funcione correctamente
+            window.history.replaceState({ view: 'player', groupKey: group.portada, itemKey: currentItem.nombre }, `${group.title} - ${currentItem.nombre}`, `#player/${encodeURIComponent(group.title)}/${encodeURIComponent(currentItem.nombre)}`);
         }
         
-        // --- FUNCIÓN DE REPRODUCCIÓN: Abre en una nueva pestaña (La Solución) ---
-        window.openVideoInNewTab = function(embedUrl, title) { 
-            let finalUrl = embedUrl;
-
-            // Extrae la URL real si el embedUrl es un iframe completo
-            if (embedUrl.toLowerCase().startsWith('<iframe')) {
-                const match = embedUrl.match(/src=["'](.*?)["']/i);
-                if (match && match[1]) {
-                    finalUrl = match[1];
-                }
-            }
-            
-            // Abre una nueva pestaña con la URL del video
-            window.open(finalUrl, '_blank');
-        }
-
+        // --- FUNCIÓN DE NAVEGACIÓN (Acerca de, etc.) ---
         window.renderAbout = function() { 
+            // ... (El contenido de Acerca de es el mismo)
             clearContent();
             document.getElementById('current-title').textContent = 'Acerca de';
             
@@ -391,7 +445,7 @@
                                 <path d="M12.001 2c-5.522 0-10 4.477-10 10 0 3.033 1.34 5.762 3.493 7.61l-.678 2.017 2.083-.65 2.158.749 4.945-4.832c3.486-1.743 5.495-5.32 5.01-9.176-.485-3.856-3.882-6.843-7.893-6.843zm4.562 10.98c-.18.12-.392.18-.636.18h-.001c-.244 0-.466-.06-.677-.18s-.36-.28-.54-.42c-.18-.14-.36-.33-.48-.54s-.22-.48-.22-.72c0-.24.08-.48.22-.72s.3-.41.51-.59c.21-.18.42-.31.64-.39.22-.08.48-.12.78-.12h.001c.3 0 .56.04.78.12s.39.21.57.39c.18.18.3.37.38.6s.12.42.12.72c0 .24-.04.48-.12.72s-.21.46-.39.63z" fill="#FFF"/>
                             </svg>
                             Pedir Serie o Película
-                        </a>
+                        </a
                     </div>
                 </div>
             `;
@@ -418,7 +472,17 @@
                     renderAbout();
                 } else if (event.state.view === 'details') {
                     renderDetails(event.state.key);
-                } 
+                } else if (event.state.view === 'player' && groupedData.length > 0) { 
+                    const group = groupedData.find(g => g.portada === event.state.groupKey);
+                    const item = group ? group.items.find(i => i.nombre === event.state.itemKey) : null;
+                    if (group && item) {
+                        renderDetailsAndPlayer(group, item);
+                    } else {
+                         renderHome(); 
+                    }
+                } else {
+                    renderHome(); 
+                }
             } else {
                 navigateTo('home', ''); 
             }
@@ -449,20 +513,12 @@
             document.getElementById('nav-home').addEventListener('click', () => navigateTo('home'));
             document.getElementById('nav-about').addEventListener('click', () => navigateTo('about'));
             
-            // Verifica la URL al cargar la página para saber qué vista renderizar
-            if (location.hash.startsWith('#details/')) {
-                const key = decodeURIComponent(location.hash.split('#details/')[1]);
-                // Necesitamos forzar la carga de datos si el usuario llega directamente por URL
-                // loadData() se encarga de esto, pero verificamos que haya estado en el historial
-                if (groupedData.length > 0) {
-                     renderDetails(key);
-                }
-            } else if (location.hash === '#about') {
-                renderAbout();
+            // Lógica para manejar la carga directa por URL (hash)
+            if (location.hash) {
+                // Si hay hash, esperamos que loadData lo procese y luego haga la navegación
+                // No llamamos a navigateTo aquí para evitar errores si los datos no están listos
             } else {
-                // Navegar a home por defecto si no hay hash válido
-                // La función loadData() llama a renderHome() una vez que los datos están listos.
-                // navigateTo('home', ''); // Esto está cubierto por loadData()
+                navigateTo('home', ''); 
             }
         };
     </script>
