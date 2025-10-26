@@ -11,15 +11,17 @@
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Dark Blue Gray */
         }
-        /* Contenedor del reproductor para mantener el aspecto (recuadro rectangular) */
+        /* Contenedor del reproductor: El "recuadro rectangular" grande, como en HDfull */
         .video-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* Aspect Ratio 16:9 */
+            /* Proporción 16:9 (o 56.25% de la anchura) para el recuadro de video */
+            padding-bottom: 56.25%; 
             height: 0;
             overflow: hidden;
             background-color: #000; /* Fondo negro */
             border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
         /* Estilo del iframe para ocupar todo el contenedor */
         .video-container iframe {
@@ -92,7 +94,6 @@
         
         // --- LÓGICA DE PROCESAMIENTO DE DATOS ---
         async function fetchWithRetry(url, retries = 3) {
-            // ... (Función de carga de datos)
             let lastError = null; 
             for (let i = 0; i < retries; i++) {
                 try {
@@ -114,7 +115,6 @@
         }
 
         function processJSONData(jsonData) {
-            // ... (Función de procesamiento de JSON)
             console.log("--- Diagnóstico JSON de VercelMuvi ---");
             if (!Array.isArray(jsonData)) {
                 console.error("[JSON ERROR CRÍTICO] El archivo JSON no es un array de objetos. Debe empezar y terminar con corchetes `[]`.");
@@ -144,7 +144,6 @@
         }
 
         function groupData(data) {
-            // ... (Función de agrupación de datos)
             const groups = {};
 
             data.forEach(item => {
@@ -173,7 +172,6 @@
         }
 
         async function loadData() {
-            // ... (Función de carga inicial)
             const content = document.getElementById('content');
             content.innerHTML = `
                 <div class="flex flex-col items-center justify-center p-10 text-lg text-indigo-400">
@@ -214,7 +212,6 @@
         }
 
         window.renderHome = function(filterText = '') { 
-            // ... (Función de vista de inicio sin cambios)
             clearContent();
             document.getElementById('current-title').textContent = 'Inicio';
             
@@ -301,7 +298,6 @@
             // Llama a la función que dibuja la vista y carga el reproductor
             renderDetailsAndPlayer(group, defaultItem);
 
-            // Usa un hash genérico para que el botón back funcione correctamente
             window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
         }
 
@@ -361,8 +357,8 @@
                                 frameborder="0" 
                                 allowfullscreen 
                                 title="Reproductor de ${currentItem.nombre}"
-                                // Se usan permisos amplios para intentar mejorar la compatibilidad del reproductor
-                                sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation allow-top-navigation"
+                                // Quitamos sandbox para mejorar la compatibilidad y la carga de Captcha.
+                                allow="fullscreen" 
                             ></iframe>
                         </div>
                     </div>
@@ -394,7 +390,6 @@
         
         // --- FUNCIÓN DE NAVEGACIÓN (Acerca de, etc.) ---
         window.renderAbout = function() { 
-            // ... (Función de vista "Acerca de" sin cambios)
             clearContent();
             document.getElementById('current-title').textContent = 'Acerca de';
             
@@ -505,14 +500,25 @@
             document.getElementById('nav-about').addEventListener('click', () => navigateTo('about'));
             
             // Lógica para manejar la carga directa por URL (hash)
-            if (location.hash.startsWith('#player/')) {
-                // Si la URL es de un reproductor, intentamos cargar el video (esto depende de loadData)
+            if (location.hash.startsWith('#player/') && groupedData.length > 0) {
+                 // Recuperar el estado si es una URL de reproductor
+                 const parts = location.hash.split('/');
+                 if (parts.length === 3) {
+                    const groupKey = decodeURIComponent(parts[1]);
+                    const itemKey = decodeURIComponent(parts[2]);
+                    const group = groupedData.find(g => g.portada === groupKey);
+                    const item = group ? group.items.find(i => i.nombre === itemKey) : null;
+                    if (group && item) {
+                        renderDetailsAndPlayer(group, item);
+                        return;
+                    }
+                 }
             } else if (location.hash.startsWith('#details/')) {
-                 // Si la URL es de detalles, intentamos cargar la vista (esto depende de loadData)
+                // ... (Cargar vista de detalles)
             } else if (location.hash === '#about') {
-                // Vista de "Acerca de"
+                // ... (Cargar vista de acerca de)
             } else {
-                // Por defecto, va al inicio
+                // loadData() llama a renderHome()
             }
         };
     </script>
