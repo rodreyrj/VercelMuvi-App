@@ -11,25 +11,26 @@
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Dark Blue Gray */
         }
-        /* Contenedor del reproductor: Recuadro Negro de Relleno */
-        .video-placeholder {
+        /* Contenedor del reproductor: El "recuadro rectangular" grande, como quieres */
+        .video-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* Proporción 16:9 */
+            /* Proporción 16:9 (o 56.25% de la anchura) para el recuadro de video */
+            padding-bottom: 56.25%; 
             height: 0;
             overflow: hidden;
             background-color: #000; /* Fondo negro */
             border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
-        .video-placeholder .text-placeholder {
-            color: #4B5563; /* gray-600 */
-            font-size: 1.25rem;
-            text-align: center;
-            padding: 1rem;
+        /* Estilo del iframe para ocupar todo el contenedor */
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -300,7 +301,7 @@
             window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
         }
 
-        // Función para renderizar la vista de detalles Y el reproductor incrustado (AHORA SOLO MOSTRARÁ EL BOTÓN)
+        // Función para renderizar la vista de detalles Y el reproductor incrustado
         window.renderDetailsAndPlayer = function(group, currentItem) {
             const content = document.getElementById('content');
             
@@ -313,8 +314,20 @@
                     videoSource = match[1];
                 } 
             }
+
+            // 2. CORRECCIÓN CLAVE PARA POWVIDEO (Eliminar el parámetro de tamaño: -954x562.html)
+            // Esto es crucial para que se cargue de forma limpia y sin Captcha forzado.
+            videoSource = videoSource.replace(/-\d+x\d+\.html/i, '.html');
+
+            // 3. APLICAR EL PARÁMETRO ANTI-CAPCHA (AutoPlay)
+            if (!videoSource.includes('?')) {
+                videoSource += '?auto_play=1'; 
+            } else if (!videoSource.includes('auto_play')) {
+                videoSource += '&auto_play=1';
+            }
             
-            // La lista de capítulos llama a esta misma función para cambiar el botón de video
+            
+            // La lista de capítulos ahora llama a esta misma función para cambiar el video en el recuadro
             const partsList = group.items.map(item => `
                 <li 
                     class="p-4 border-b border-gray-700 last:border-b-0 transition duration-150 cursor-pointer rounded-lg 
@@ -324,7 +337,7 @@
                                                                .items.find(i => i.nombre === '${item.nombre.replace(/'/g, "\\'")}') )"
                 >
                     <span class="text-lg">${item.nombre}</span>
-                    ${item.nombre === currentItem.nombre ? '<span class="text-sm text-white/70 block">Seleccionado</span>' : ''}
+                    ${item.nombre === currentItem.nombre ? '<span class="text-sm text-white/70 block">Viendo ahora</span>' : ''}
                 </li>
             `).join('');
 
@@ -342,26 +355,18 @@
                     <h1 class="text-3xl font-extrabold text-white mb-4">${group.title} - ${currentItem.nombre}</h1>
 
                     <div class="bg-gray-900 rounded-xl shadow-2xl mb-8 p-1">
-                        <div class="video-placeholder">
-                            <p class="text-placeholder">Video seleccionado: ${currentItem.nombre}</p>
+                        
+                        <div class="video-container">
+                            <iframe 
+                                src="${videoSource}" 
+                                frameborder="0" 
+                                allowfullscreen 
+                                title="Reproductor de ${currentItem.nombre}"
+                                allow="autoplay; fullscreen" 
+                                sandbox="allow-scripts allow-same-origin allow-popups allow-presentation" 
+                            ></iframe>
                         </div>
                     </div>
-                    <div class="text-center mb-8">
-                        <a 
-                            href="${videoSource}" 
-                            target="_blank"
-                            class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-full shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-700/50 transition duration-150 transform hover:scale-[1.02]"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            Abrir en Pestaña Completa (Full HD)
-                        </a>
-                        <p class="text-sm text-gray-400 mt-4">
-                            Si el video no carga o tiene problemas, use esta opción para ir directamente al servidor.
-                        </p>
-                    </div>
-
                     <div class="md:flex bg-gray-800/50 rounded-xl p-6 shadow-2xl">
                         
                         <div class="md:w-1/3 flex justify-center mb-6 md:mb-0 md:pr-8">
