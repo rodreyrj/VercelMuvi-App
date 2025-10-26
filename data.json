@@ -3,6 +3,7 @@
     "url": "https://i.postimg.cc/tJqrc6yx/culp.png",
     "nombre": "Culpa Mía - Película Completa",
     "embed": "https://powvideo.org/embed-2rrogwot4b90-954x562.html"
-  },
-  {
+  }, // ¡La coma es obligatoria para separar este objeto del siguiente!
+  
+  // Aquí es donde iría el nuevo contenido
 ]
