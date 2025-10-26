@@ -11,30 +11,49 @@
             font-family: 'Inter', sans-serif;
             background-color: #111827; /* Dark Blue Gray */
         }
-        /* Clase para el reproductor de video (Aspect Ratio 16:9) */
-        .aspect-video-wrapper {
+        /* Contenedor del reproductor para mantener el aspecto y centrarlo */
+        .video-container {
             position: relative;
             width: 100%;
-            /* Ajustado para ser más alto en móvil, pero mantener 16:9 si es posible */
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */ 
+            max-width: 900px; /* Máximo ancho del reproductor */
+            margin: 0 auto;
+            padding-bottom: 56.25%; /* Aspect Ratio 16:9 */
             height: 0;
             overflow: hidden;
-            background-color: #000;
+            background-color: #000; /* Fondo negro por defecto */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2); /* shadow-2xl */
         }
-        .aspect-video-wrapper iframe {
+        /* Estilo del iframe para ocupar todo el contenedor */
+        .video-container iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            border: none;
         }
 
-        /* Responsive adjustments for the video player container */
-        @media (max-width: 640px) { /* On small screens (mobile) */
-            .aspect-video-wrapper {
-                /* Podemos hacerlo un poco más alto en móvil si se desea */
-                /* padding-bottom: 65%; /* Por ejemplo, 16:10 para ocupar más verticalmente */ 
-            }
+        /* Capa de overlay para el "Reproductor Intermedio" */
+        .player-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); /* Fondo oscuro semitransparente */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 10; /* Asegura que esté por encima del iframe */
+            transition: opacity 0.3s ease-in-out;
+        }
+        .player-overlay.hidden {
+            opacity: 0;
+            pointer-events: none; /* Deshabilita interacciones cuando está oculto */
         }
     </style>
 </head>
@@ -310,7 +329,7 @@
             const partsList = group.items.map(item => `
                 <li 
                     class="p-4 border-b border-gray-700 last:border-b-0 hover:bg-indigo-900/20 transition duration-150 cursor-pointer rounded-lg"
-                    onclick="renderPlayer('${item.embed.replace(/'/g, "\\'")}', '${item.nombre.replace(/'/g, "\\'")}')"
+                    onclick="renderCustomPlayer('${item.embed.replace(/'/g, "\\'")}', '${item.nombre.replace(/'/g, "\\'")}')"
                 >
                     <span class="font-semibold text-white text-lg">${item.nombre}</span>
                     <span class="text-sm text-gray-400 block">Clic para ver</span>
@@ -354,8 +373,8 @@
             window.history.pushState({ view: 'details', key: portadaKey }, group.title, `#details/${encodeURIComponent(portadaKey)}`);
         }
         
-        // --- FUNCIÓN renderPlayer (restaurada y mejorada) ---
-        window.renderPlayer = function(embedUrl, title) { 
+        // --- NUEVA FUNCIÓN: renderCustomPlayer (para el reproductor "propio") ---
+        window.renderCustomPlayer = function(embedUrl, title) { 
             clearContent();
             const content = document.getElementById('content');
             
@@ -384,17 +403,34 @@
                     
                     <h1 class="text-3xl font-extrabold text-white mb-4">${title}</h1>
                     
-                    <div class="aspect-video-wrapper rounded-xl shadow-2xl mb-4"> 
+                    <div class="video-container relative">
+                        <div id="playerOverlay" class="player-overlay">
+                            <h2 class="text-xl font-bold mb-4">¡Listo para ver!</h2>
+                            <p class="mb-6 text-gray-300 max-w-sm">Toca el botón para iniciar el video. Podría haber una verificación "no soy un robot" en el reproductor.</p>
+                            <button 
+                                id="playButton"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center text-lg"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                                </svg>
+                                Reproducir
+                            </button>
+                            <p class="text-sm text-gray-500 mt-4">Después de tocar, el video podría tardar unos segundos en cargar.</p>
+                        </div>
                         <iframe 
-                            src="${videoSource}" 
-                            frameborder="0" 
+                            id="videoIframe"
+                            src="about:blank" frameborder="0" 
                             allowfullscreen 
                             title="Reproductor de ${title}"
                             sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
                         ></iframe>
                     </div>
-                    
-                    <div class="text-center mb-8">
+
+                    <div class="text-center mt-8 space-y-4">
+                        <p class="text-gray-400">
+                            Si el video no carga o tiene problemas, intenta lo siguiente:
+                        </p>
                         <button 
                             onclick="openInNewTab('${videoSource}')" 
                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center mx-auto"
@@ -403,19 +439,26 @@
                                 <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                                 <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                             </svg>
-                            Abrir en Pestaña Completa (Si hay problemas)
+                            Abrir en Pestaña Completa
                         </button>
                     </div>
 
-                    <p class="text-gray-400 mt-4 text-center">
-                        Si el video no carga, hay publicidad o requiere verificación, usa el botón "Abrir en Pestaña Completa".
-                    </p>
                 </div>
             `;
-            window.history.pushState({ view: 'player', url: embedUrl }, title, `#player/${encodeURIComponent(title)}`);
+            window.history.pushState({ view: 'player', url: embedUrl, title: title }, title, `#player/${encodeURIComponent(title)}`);
+
+            // Lógica para el botón "Reproducir" del overlay
+            document.getElementById('playButton').addEventListener('click', () => {
+                const playerOverlay = document.getElementById('playerOverlay');
+                const videoIframe = document.getElementById('videoIframe');
+                
+                // Carga el iframe solo cuando el usuario haga clic en Reproducir
+                videoIframe.src = videoSource;
+                playerOverlay.classList.add('hidden'); // Oculta el overlay
+            });
         }
 
-        // --- Nueva función auxiliar para abrir en nueva pestaña ---
+        // --- Función auxiliar para abrir en nueva pestaña ---
         window.openInNewTab = function(url) {
             window.open(url, '_blank');
         }
@@ -489,12 +532,9 @@
                     renderAbout();
                 } else if (event.state.view === 'details') {
                     renderDetails(event.state.key);
-                } else if (event.state.view === 'player') { // Al volver del reproductor, volvemos a detalles
-                    // Necesitamos una forma de saber a qué detalles volver.
-                    // En este caso, simplemente volverá a Home si no se guarda la clave de detalle.
-                    // Para una experiencia perfecta, necesitarías guardar el 'portadaKey' del detalle
-                    // en el estado del historial del reproductor. Por ahora, volverá a Home.
-                    history.back(); // Vuelve un paso más si el reproductor está en el historial
+                } else if (event.state.view === 'player') { 
+                    // Cuando volvemos a la vista del reproductor, lo re-renderizamos para que se vea el overlay
+                    renderCustomPlayer(event.state.url, event.state.title);
                 }
             } else {
                 navigateTo('home', ''); 
@@ -531,8 +571,13 @@
                 const key = decodeURIComponent(location.hash.split('#details/')[1]);
                 renderDetails(key);
             } else if (location.hash.startsWith('#player/')) {
-                // Al cargar directamente en un reproductor, regresamos un paso
-                history.back(); 
+                // Recuperar la URL y el título del estado del historial
+                const state = history.state;
+                if (state && state.view === 'player') {
+                    renderCustomPlayer(state.url, state.title);
+                } else {
+                    navigateTo('home', ''); 
+                }
             } else if (location.hash === '#about') {
                 renderAbout();
             } else {
