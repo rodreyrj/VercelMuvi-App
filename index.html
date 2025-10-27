@@ -71,13 +71,20 @@
             border: 1px solid #444;
             border-radius: 20px; 
             background: #222;
-            color: white;
+            /* CLAVE: Aseguramos que el color del texto sea visible */
+            color: white !important; 
             width: 200px;
             transition: border-color 0.3s;
         }
         .header-controls input[type="text"]:focus {
              border-color: var(--color-primary);
              outline: none;
+        }
+
+        /* Placeholder color (para algunos navegadores) */
+        .header-controls input::placeholder { 
+            color: #ccc;
+            opacity: 1; 
         }
         
         footer {
@@ -202,7 +209,7 @@
             border-left: 4px solid var(--color-primary);
         }
 
-        /* Modal y WhatsApp (Mantener estilos originales) */
+        /* Modal y WhatsApp */
         .modal {
             display: none; 
             position: fixed; 
@@ -341,7 +348,8 @@
     </footer>
 
     <script>
-        // 1. BASE DE DATOS DE CONTENIDO: SOLO CULPA MÍA
+        // 1. BASE DE DATOS DE CONTENIDO: 
+        // He añadido un ejemplo adicional para probar el funcionamiento del buscador
         const CONTENT_DATA = [
             {
                 id: "culpa_mia",
@@ -353,6 +361,17 @@
                 episodes: [
                     { title: "Servidor 1: Temporada 1 - HD (Powvideo)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
                     { title: "Servidor 2: Temporada 1 - SD (Alternativo)", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
+                ]
+            },
+             {
+                id: "terror_total",
+                poster: "https://i.postimg.cc/NjW1R3wX/terror.png", // Ejemplo de otra portada
+                title: "Terror Total 2",
+                description: "La segunda parte del éxito de terror, con más suspenso y giros inesperados.",
+                rating: "6.5",
+                flag: "🇺🇸",
+                episodes: [
+                    { title: "Película Completa", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-TERROR.html" },
                 ]
             }
         ];
@@ -369,9 +388,9 @@
         const aboutModal = document.getElementById('about-modal');
         const homeTitle = document.getElementById('home-title');
         const searchStatus = document.getElementById('search-status');
-        const searchInput = document.getElementById('search-input'); // Nuevo elemento
+        const searchInput = document.getElementById('search-input'); 
 
-        // 3. Funciones de Navegación (sin cambios)
+        // 3. Funciones de Navegación
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
@@ -381,17 +400,51 @@
             renderGrid(CONTENT_DATA); 
             homeTitle.style.display = 'block';
             searchStatus.style.display = 'none';
-            searchInput.value = ''; // Limpiar el campo de búsqueda
+            searchInput.value = ''; // Limpiar el campo de búsqueda al volver
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        // 4. Funciones de Búsqueda (CORREGIDA)
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            // No llamamos a showHomeView() aquí para evitar resetear la búsqueda al escribir
+            // Solo aseguramos que estemos en la vista de inicio
+            if (detailsView.style.display === 'block') {
+                showHomeView();
+            }
+
+            if (query === '') {
+                // Si el campo está vacío, mostrar todo
+                renderGrid(CONTENT_DATA);
+                homeTitle.style.display = 'block';
+                return;
+            }
+
+            // Filtrar la base de datos (BÚSQUEDA PARCIAL)
+            const results = CONTENT_DATA.filter(item => 
+                item.title.toLowerCase().includes(query)
+            );
+
+            // Renderizar solo los resultados
+            renderGrid(results);
+            
+            // Actualizar el título de la vista
+            homeTitle.style.display = 'none';
+            if (results.length > 0) {
+                searchStatus.textContent = `✅ Mostrando ${results.length} resultado(s) para "${query}".`;
+            }
+            searchStatus.style.display = 'block';
+        }
+
+        // --- Funciones restantes (loadContent, renderGrid, Modal) ---
+        // (El resto del JavaScript se mantiene igual que en la versión anterior)
 
         function showDetailsView(id) {
             homeView.style.display = 'none';
             detailsView.style.display = 'block';
             loadContent(id);
         }
-        
-        // 4. Funciones del Modal "Acerca de" (sin cambios)
+
         function openModal() {
             aboutModal.style.display = 'block';
         }
@@ -406,7 +459,6 @@
             }
         }
         
-        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO (sin cambios)
         function loadContent(id) {
             const data = CONTENT_DATA.find(item => item.id === id);
 
@@ -449,9 +501,8 @@
             }
         }
         
-        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA
         function renderGrid(dataArray) {
-            gridContainer.innerHTML = ''; // Limpiar la cuadrícula existente
+            gridContainer.innerHTML = ''; 
             
             if (dataArray.length === 0) {
                 searchStatus.textContent = "❌ Lo siento, no se encontraron resultados.";
@@ -476,34 +527,7 @@
             });
             searchStatus.style.display = 'none';
         }
-        
-        // 7. FUNCIÓN DE BÚSQUEDA (LA NUEVA LÓGICA)
-        function handleSearch() {
-            const query = searchInput.value.toLowerCase().trim();
-            showHomeView(); // Asegura que estemos en la vista de inicio
 
-            if (query === '') {
-                // Si el campo está vacío, mostrar todo
-                renderGrid(CONTENT_DATA);
-                homeTitle.style.display = 'block';
-                return;
-            }
-
-            // Filtrar la base de datos
-            const results = CONTENT_DATA.filter(item => 
-                item.title.toLowerCase().includes(query)
-            );
-
-            // Renderizar solo los resultados
-            renderGrid(results);
-            
-            // Actualizar el título de la vista
-            homeTitle.style.display = 'none';
-            if (results.length > 0) {
-                searchStatus.textContent = `✅ Mostrando ${results.length} resultado(s) para "${query}".`;
-            }
-            searchStatus.style.display = 'block';
-        }
 
         // 8. INICIO DE LA APLICACIÓN
         document.addEventListener('DOMContentLoaded', () => {
