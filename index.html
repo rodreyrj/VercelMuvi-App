@@ -327,6 +327,13 @@
             <span class="close-button" onclick="closeModal()">&times;</span>
             <h2>Acerca de RodreyFlix</h2>
             <p>RodreyFlix es una plataforma personal para la organización y reproducción de series y películas.</p>
+            
+            <p>
+                <strong>Portafolio del Desarrollador RodreyRJ:</strong>
+                <br>
+                <a href="https://rodreyrj.vercel.app/" target="_blank">rodreyrj.vercel.app</a>
+            </p>
+            
             <p><strong>Información de Contacto:</strong></p>
             <ul>
                 <li><strong>Teléfono:</strong> +123 456 7890 (Ejemplo)</li>
@@ -343,11 +350,11 @@
     </a>
 
     <footer>
-        &copy; 2024 RodreyFlix. Copy Rating: RodreyRJ. Todos los derechos reservados.
+        &copy; 2024 RodreyFlix. Copy Rating: RodreyRJ | Desarrollado por <a href="https://rodreyrj.vercel.app/" target="_blank" style="color: #888; text-decoration: none;">RodreyRJ</a>
     </footer>
 
     <script>
-        // 1. BASE DE DATOS DE CONTENIDO: TÍTULOS CORREGIDOS
+        // 1. BASE DE DATOS DE CONTENIDO: TITULOS ACTUALIZADOS
         const CONTENT_DATA = [
             {
                 id: "culpa_mia",
@@ -357,26 +364,27 @@
                 rating: "8.2",
                 flag: "🇪🇸",
                 episodes: [
-                    // Títulos Corregidos
-                    { title: "Culpa Mía  (HD)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
-                    { title: "Culpa Tulla (HD)", iframeSrc: "https://powvideo.org/embed-sv82pny0rmfs-954x562.html" },
-                    { title: "Culpa Nuestra  (HD)", iframeSrc: "https://powvideo.org/embed-u5ajkqwl39sg-954x562.html" },
+                    { title: "Culpa Mía (HD)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
+                    { title: "Culpa Tuya (HD)", iframeSrc: "https://powvideo.org/embed-sv82pny0rmfs-954x562.html" },
+                    { title: "Culpa Nuestra (HD)", iframeSrc: "https://powvideo.org/embed-u5ajkqwl39sg-954x562.html" },
                 ]
             },
-             {
-                id: "bunker El Refugio Atomico",
+            {
+                // ID y Title corregidos a mayúscula inicial para mejor presentación y búsqueda
+                id: "bunker_el_refugio_atomico", 
                 poster: "https://i.postimg.cc/CxhsvzCf/show-3d5edfff275ad179a4be48a206cd2fb3.jpg",
-                title: "bunker El Refugio Atomico",
+                title: "Bunker El Refugio Atomico",
                 description: "Las tensiones internacionales van en aumento y Max sale de prisión para reunirse con sus padres en un búnker de lujo. Allí, un reencuentro le obligará a enfrentarse a su pasado.",
                 rating: "6.5",
                 flag: "🇺🇸",
                 episodes: [
-                    { title: "billionaires Capt 1", iframeSrc: "https://powvideo.org/embed-kits42jd338b-954x562.html" },
+                    // Título de episodio corregido
+                    { title: "Billionaires Capítulo 1", iframeSrc: "https://powvideo.org/embed-kits42jd338b-954x562.html" },
                 ]
             }
         ];
 
-        // 2. Elementos del DOM
+        // 2. Elementos del DOM (El resto se mantiene igual)
         const homeView = document.getElementById('home-view');
         const detailsView = document.getElementById('details-view');
         const gridContainer = document.getElementById('movies-grid');
@@ -390,7 +398,7 @@
         const searchStatus = document.getElementById('search-status');
         const searchInput = document.getElementById('search-input'); 
 
-        // 3. Funciones de Navegación
+        // 3. Funciones de Navegación (Se mantiene igual)
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
@@ -409,7 +417,7 @@
             loadContent(id);
         }
         
-        // 4. Funciones del Modal "Acerca de"
+        // 4. Funciones del Modal "Acerca de" (Se mantiene igual)
         function openModal() {
             aboutModal.style.display = 'block';
         }
@@ -424,7 +432,7 @@
             }
         }
         
-        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO
+        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO (Se mantiene igual)
         function loadContent(id) {
             const data = CONTENT_DATA.find(item => item.id === id);
 
@@ -467,7 +475,7 @@
             }
         }
         
-        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA
+        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA (Se mantiene igual)
         function renderGrid(dataArray) {
             gridContainer.innerHTML = ''; 
             
@@ -495,7 +503,7 @@
             searchStatus.style.display = 'none';
         }
         
-        // 7. FUNCIÓN DE BÚSQUEDA
+        // 7. FUNCIÓN DE BÚSQUEDA (Se mantiene igual)
         function handleSearch() {
             const query = searchInput.value.toLowerCase().trim();
             
@@ -522,7 +530,22 @@
             searchStatus.style.display = 'block';
         }
 
-        // 8. INICIO DE LA APLICACIÓN
+        // 8. FUNCIONES DE PROTECCIÓN DE CÓDIGO AÑADIDAS
+        document.addEventListener('contextmenu', event => {
+            event.preventDefault(); // Bloquea el clic derecho
+            alert("Acceso al menú contextual bloqueado.");
+        });
+
+        document.addEventListener('keydown', event => {
+            // Bloquea F12 (código 123) y combinaciones comunes de vista de código fuente (Ctrl+U, Ctrl+Shift+I, etc.)
+            if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 'u')) {
+                event.preventDefault();
+                alert("La visualización del código fuente está bloqueada.");
+            }
+        });
+
+
+        // 9. INICIO DE LA APLICACIÓN
         document.addEventListener('DOMContentLoaded', () => {
             renderGrid(CONTENT_DATA);
             showHomeView(); 
@@ -530,7 +553,3 @@
     </script>
 </body>
 </html>
-
-
-
-
