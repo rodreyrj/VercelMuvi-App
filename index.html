@@ -6,7 +6,7 @@
     <title>RodreyFlix - Series y Películas</title>
 
     <style>
-        /* --- ESTILOS BASE Y VARIABLES --- */
+        /* --- ESTILOS CSS (INICIO) --- */
         :root {
             --color-primary: #e50914; 
             --color-secondary: #000000;
@@ -23,11 +23,10 @@
             color: var(--color-text);
             min-height: 100vh;
             min-width: 100%; 
-            /* Espacio para el footer fijo (Ajustar si el footer cambia de altura) */
             padding-bottom: 50px; 
         }
 
-        /* --- ENCABEZADO Y PIE DE PÁGINA FIJOS --- */
+        /* Encabezado */
         header {
             background: linear-gradient(to right, #000, #1c1c1c); 
             padding: 15px 30px;
@@ -35,7 +34,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--color-primary);
-            position: sticky; /* Header fijo en la parte superior */
+            position: sticky; 
             top: 0;
             z-index: 100; 
         }
@@ -54,15 +53,35 @@
             padding: 8px 15px;
             border: 1px solid #444;
             border-radius: 5px;
-            margin-left: 20px;
+            margin-right: 10px; /* Espacio antes del input */
             transition: background-color 0.3s;
         }
         .about-link:hover {
             background-color: #333;
         }
+
+        /* Buscador: Estilo para que sea funcional */
+        .header-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-controls input[type="text"] {
+            padding: 8px 15px;
+            border: 1px solid #444;
+            border-radius: 20px; 
+            background: #222;
+            color: white;
+            width: 200px;
+            transition: border-color 0.3s;
+        }
+        .header-controls input[type="text"]:focus {
+             border-color: var(--color-primary);
+             outline: none;
+        }
         
         footer {
-            position: fixed; /* Footer fijo en la parte inferior */
+            position: fixed; 
             bottom: 0;
             left: 0;
             width: 100%;
@@ -74,7 +93,9 @@
             z-index: 90;
         }
 
-        /* --- CONTENEDORES Y GRID --- */
+        /* --- CONTENEDORES Y GRID (resto de estilos omitidos por brevedad, mantener los originales) --- */
+        /* ... (mantener los estilos de .container, .movies-grid, .movie-card, .video-player, etc.) ... */
+
         .container {
             max-width: 1200px; 
             width: 95%; 
@@ -125,7 +146,6 @@
             font-size: 0.9em;
         }
         
-        /* --- ESTILOS DE LA VISTA DE DETALLES --- */
         .video-player {
             position: relative;
             padding-bottom: 56.25%; 
@@ -177,7 +197,7 @@
             border-left: 4px solid var(--color-primary);
         }
 
-        /* --- MODAL "ACERCA DE" --- */
+        /* Modal y WhatsApp (estilos omitidos por brevedad, mantener los originales) */
         .modal {
             display: none; 
             position: fixed; 
@@ -222,18 +242,17 @@
             color: var(--color-primary);
         }
 
-        /* --- BOTÓN FLOTANTE WHATSAPP --- */
         .whatsapp-float {
             position: fixed;
             width: 60px;
             height: 60px;
-            bottom: 70px; /* Separado del footer fijo */
+            bottom: 70px; 
             right: 20px;
             background-color: #25d366;
             color: #FFF;
             border-radius: 50px;
             text-align: center;
-            font-size: 28px; /* Icono más grande */
+            font-size: 28px; 
             line-height: 60px; 
             z-index: 100;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
@@ -249,9 +268,9 @@
 
     <header>
         <div class="logo" onclick="showHomeView()">RODREYFLIX</div>
-        <div>
+        <div class="header-controls">
             <a href="#" class="about-link" onclick="openModal()">Acerca de</a>
-            <input type="text" placeholder="Buscar..." disabled style="margin-left: 10px; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; background: #222; color: white;">
+            <input type="text" placeholder="Buscar..." style="margin-left: 10px;">
         </div>
     </header>
 
