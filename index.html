@@ -71,7 +71,6 @@
             border: 1px solid #444;
             border-radius: 20px; 
             background: #222;
-            /* CLAVE: Aseguramos que el color del texto sea visible */
             color: white !important; 
             width: 200px;
             transition: border-color 0.3s;
@@ -316,7 +315,7 @@
                     <p id="series-description"></p>
                 </div>
 
-                <h3>Capítulos/Servidores Disponibles</h3>
+                <h3>Partes/Servidores Disponibles</h3>
                 <div id="episodes-list">
                     </div>
             </div>
@@ -348,8 +347,7 @@
     </footer>
 
     <script>
-        // 1. BASE DE DATOS DE CONTENIDO: 
-        // He añadido un ejemplo adicional para probar el funcionamiento del buscador
+        // 1. BASE DE DATOS DE CONTENIDO: TÍTULOS CORREGIDOS
         const CONTENT_DATA = [
             {
                 id: "culpa_mia",
@@ -359,13 +357,14 @@
                 rating: "8.2",
                 flag: "🇪🇸",
                 episodes: [
-                    { title: "Servidor 1: Temporada 1 - HD (Powvideo)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
-                    { title: "Servidor 2: Temporada 1 - SD (Alternativo)", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
+                    // Títulos Corregidos
+                    { title: "Culpa Mía Parte 1 (HD)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
+                    { title: "Culpa Mía Parte 2 (SD)", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
                 ]
             },
              {
                 id: "terror_total",
-                poster: "https://i.postimg.cc/NjW1R3wX/terror.png", // Ejemplo de otra portada
+                poster: "https://i.postimg.cc/NjW1R3wX/terror.png",
                 title: "Terror Total 2",
                 description: "La segunda parte del éxito de terror, con más suspenso y giros inesperados.",
                 rating: "6.5",
@@ -396,55 +395,20 @@
             detailsView.style.display = 'none';
             iframeElement.src = ""; 
             document.title = "RodreyFlix - Series y Películas";
-            // Asegurarse de que al volver, la cuadrícula se renderiza completa
             renderGrid(CONTENT_DATA); 
             homeTitle.style.display = 'block';
             searchStatus.style.display = 'none';
-            searchInput.value = ''; // Limpiar el campo de búsqueda al volver
+            searchInput.value = ''; 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        // 4. Funciones de Búsqueda (CORREGIDA)
-        function handleSearch() {
-            const query = searchInput.value.toLowerCase().trim();
-            // No llamamos a showHomeView() aquí para evitar resetear la búsqueda al escribir
-            // Solo aseguramos que estemos en la vista de inicio
-            if (detailsView.style.display === 'block') {
-                showHomeView();
-            }
-
-            if (query === '') {
-                // Si el campo está vacío, mostrar todo
-                renderGrid(CONTENT_DATA);
-                homeTitle.style.display = 'block';
-                return;
-            }
-
-            // Filtrar la base de datos (BÚSQUEDA PARCIAL)
-            const results = CONTENT_DATA.filter(item => 
-                item.title.toLowerCase().includes(query)
-            );
-
-            // Renderizar solo los resultados
-            renderGrid(results);
-            
-            // Actualizar el título de la vista
-            homeTitle.style.display = 'none';
-            if (results.length > 0) {
-                searchStatus.textContent = `✅ Mostrando ${results.length} resultado(s) para "${query}".`;
-            }
-            searchStatus.style.display = 'block';
-        }
-
-        // --- Funciones restantes (loadContent, renderGrid, Modal) ---
-        // (El resto del JavaScript se mantiene igual que en la versión anterior)
 
         function showDetailsView(id) {
             homeView.style.display = 'none';
             detailsView.style.display = 'block';
             loadContent(id);
         }
-
+        
+        // 4. Funciones del Modal "Acerca de"
         function openModal() {
             aboutModal.style.display = 'block';
         }
@@ -459,6 +423,7 @@
             }
         }
         
+        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO
         function loadContent(id) {
             const data = CONTENT_DATA.find(item => item.id === id);
 
@@ -501,6 +466,7 @@
             }
         }
         
+        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA
         function renderGrid(dataArray) {
             gridContainer.innerHTML = ''; 
             
@@ -527,7 +493,33 @@
             });
             searchStatus.style.display = 'none';
         }
+        
+        // 7. FUNCIÓN DE BÚSQUEDA
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (detailsView.style.display === 'block') {
+                showHomeView();
+            }
 
+            if (query === '') {
+                renderGrid(CONTENT_DATA);
+                homeTitle.style.display = 'block';
+                return;
+            }
+
+            const results = CONTENT_DATA.filter(item => 
+                item.title.toLowerCase().includes(query)
+            );
+
+            renderGrid(results);
+            
+            homeTitle.style.display = 'none';
+            if (results.length > 0) {
+                searchStatus.textContent = `✅ Mostrando ${results.length} resultado(s) para "${query}".`;
+            }
+            searchStatus.style.display = 'block';
+        }
 
         // 8. INICIO DE LA APLICACIÓN
         document.addEventListener('DOMContentLoaded', () => {
