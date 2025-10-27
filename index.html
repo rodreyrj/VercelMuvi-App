@@ -2,69 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200, initial-scale=0.5"> 
     <title>RodreyFlix - Series y Películas</title>
 
     <style>
-        /* --- ESTILOS CSS --- */
+        /* --- ESTILOS CSS MEJORADOS --- */
         :root {
-            --color-primary: #e50914; /* Rojo principal */
+            --color-primary: #e50914; 
             --color-secondary: #000000;
             --color-text: #ffffff;
-            --color-bg: #111;
-            --color-card-bg: #222;
+            --color-bg: #0a0a0a; 
+            --color-card-bg: #1c1c1c; 
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Montserrat', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--color-bg);
             color: var(--color-text);
             min-height: 100vh;
+            /* Esta línea es clave: fuerza un scroll horizontal si es necesario */
+            min-width: 100%; 
         }
 
         /* Encabezado */
         header {
-            background-color: var(--color-secondary);
+            background: linear-gradient(to right, #000, #1c1c1c); 
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--color-primary);
+            position: sticky;
+            top: 0;
+            z-index: 100; 
         }
 
         .logo {
             font-size: 1.8em;
-            font-weight: bold;
+            font-weight: 800; 
             color: var(--color-primary);
-            cursor: pointer; /* Para volver al Home */
+            cursor: pointer;
+            letter-spacing: 1px;
         }
         
         .search-box input {
             padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 20px; 
+            background-color: #222;
             color: var(--color-text);
             width: 200px;
         }
 
         /* Contenedores Principales */
         .container {
-            max-width: 1200px;
+            /* Aseguramos que el contenedor siempre ocupe el ancho máximo */
+            max-width: 1200px; 
+            width: 95%; 
             margin: 20px auto;
             padding: 0 20px;
         }
         
-        /* Contenedor del Home (Cuadrícula) */
-        #home-view {
-            display: block; /* Inicialmente visible */
-        }
-
-        /* Contenedor de Detalles (Video/Episodios) */
         #details-view {
-            display: none; /* Inicialmente oculto */
+            display: none;
             max-width: 1000px;
             margin: 20px auto;
         }
@@ -72,46 +74,39 @@
         /* --- ESTILOS DE LA CUADRÍCULA (HOME) --- */
         .movies-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
+            /* CLAVE: Mantenemos el diseño de escritorio (al menos 6 columnas) */
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
+            gap: 25px;
         }
 
         .movie-card {
-            text-decoration: none;
-            color: var(--color-text);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s;
             position: relative;
             cursor: pointer;
+            text-decoration: none;
+            color: var(--color-text);
         }
         
         .movie-card:hover {
-            transform: scale(1.05);
+            transform: scale(1.08); 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
             z-index: 10;
         }
 
         .movie-card-poster {
             width: 100%;
             height: auto;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .movie-card-title {
-            text-align: center;
-            padding: 8px 0;
-            font-size: 0.9em;
+            border-radius: 8px; 
         }
 
         .rating {
             position: absolute;
             top: 5px;
             left: 5px;
-            display: flex;
-            align-items: center;
-            padding: 3px 6px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 3px;
-            color: gold;
+            padding: 3px 8px;
+            background: var(--color-primary);
+            border-radius: 4px;
+            color: white;
             font-weight: bold;
             font-size: 0.9em;
         }
@@ -119,13 +114,13 @@
         /* --- ESTILOS DE LA VISTA DE DETALLES --- */
         .video-player {
             position: relative;
-            padding-bottom: 56.25%; /* Proporción 16:9 */
+            padding-bottom: 56.25%; 
             height: 0;
             overflow: hidden;
             background: var(--color-card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
         }
 
         .video-player iframe {
@@ -136,40 +131,44 @@
             height: 100%;
             border: none;
         }
-
+        
+        .back-button {
+            background-color: #333;
+            color: var(--color-text);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-bottom: 20px;
+        }
+        .back-button:hover {
+            background-color: var(--color-primary);
+            transform: scale(1.02);
+        }
+        
         .series-card {
             background-color: var(--color-card-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            text-align: left;
-        }
-        
-        .series-details h2 {
-            margin: 0;
-            color: var(--color-primary);
-            font-size: 1.5em;
-        }
-        
-        .series-details p {
-            color: #ccc;
-            margin: 5px 0 15px;
+            padding: 30px;
         }
         
         .episode-item {
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-bottom: 1px solid #333;
             cursor: pointer;
             transition: background-color 0.2s;
         }
         
-        .episode-item:hover, .episode-item.current-active {
-            background-color: #333;
+        .episode-item.current-active {
+            background-color: #444;
             color: var(--color-primary);
             font-weight: bold;
+            border-left: 4px solid var(--color-primary);
         }
-        
-        /* Pie de página */
+
         footer {
             text-align: center;
             padding: 15px;
@@ -190,7 +189,7 @@
     </header>
 
     <div class="container" id="home-view">
-        <h1>Películas y Series Recomendadas</h1>
+        <h1>Últimos Títulos Destacados</h1>
         
         <div class="movies-grid" id="movies-grid">
             </div>
@@ -198,6 +197,11 @@
 
     <div id="details-view">
         <div class="container">
+            
+            <button class="back-button" onclick="showHomeView()">
+                &larr; Volver a la Lista
+            </button>
+            
             <h1 id="main-title"></h1>
 
             <div class="video-player">
@@ -216,7 +220,6 @@
                 <h3>Capítulos/Servidores Disponibles</h3>
                 <div id="episodes-list">
                     </div>
-                
             </div>
         </div>
     </div>
@@ -237,7 +240,7 @@
                 rating: "7.5",
                 flag: "🇪🇸",
                 episodes: [
-                    { title: "Episodio 1: Piloto", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
+                    { title: "Episodio 1: Piloto (Powvideo)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
                     { title: "Episodio 2: El Despertar", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
                     { title: "Episodio 3: La Confrontación", iframeSrc: "https://powvideo.org/embed-TERCER-VIDEO-EJEMPLO-3.html" }
                 ]
@@ -245,32 +248,32 @@
             // Ejemplo de otra película
             {
                 id: "bang",
-                poster: "", // Reemplaza con una URL de imagen real
+                poster: "", 
                 title: "Bang: Storm of Bullets",
-                description: "Una intensa película de acción sobre un ex-soldado que busca venganza.",
+                description: "Una intensa película de acción sobre un ex-soldado que busca venganza. Estreno 2024.",
                 rating: "6.7",
                 flag: "🇺🇸",
                 episodes: [
-                    { title: "Opción 1: Servidor HD", iframeSrc: "https://powvideo.org/embed-LINK-DE-BANG-HD.html" },
-                    { title: "Opción 2: Servidor SD", iframeSrc: "https://powvideo.org/embed-LINK-DE-BANG-SD.html" }
+                    { title: "Opción 1: Servidor HD (Powvideo)", iframeSrc: "https://powvideo.org/embed-LINK-DE-BANG-HD.html" },
+                    { title: "Opción 2: Servidor SD (Alternativo)", iframeSrc: "https://otravideo.org/embed-LINK-DE-BANG-SD.html" }
                 ]
             },
             // Ejemplo de otra película
             {
                 id: "ship",
-                poster: "", // Reemplaza con una URL de imagen real
+                poster: "", 
                 title: "Ship of the Damned",
-                description: "Aventura y terror en alta mar.",
+                description: "Aventura y terror en alta mar, con efectos especiales impresionantes.",
                 rating: "4.0",
                 flag: "🇺🇸",
                 episodes: [
                     { title: "Película Completa", iframeSrc: "https://powvideo.org/embed-LINK-DE-SHIP.html" }
                 ]
             }
-            // ¡AÑADE TUS OTROS TÍTULOS AQUÍ SIGUIENDO EL FORMATO!
+            // ¡AÑADE TUS OTROS TÍTULOS AQUÍ!
         ];
 
-        // 2. Elementos del DOM (para no buscarlos cada vez)
+        // 2. Elementos del DOM
         const homeView = document.getElementById('home-view');
         const detailsView = document.getElementById('details-view');
         const gridContainer = document.getElementById('movies-grid');
@@ -280,17 +283,18 @@
         const seriesDescription = document.getElementById('series-description');
         const episodesListDiv = document.getElementById('episodes-list');
 
-        let currentContentId = null; // Para saber qué estamos viendo
-
         // 3. FUNCIÓN PARA MOSTRAR LA CUADRÍCULA (HOME)
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
+            // Limpiar el iframe para detener la reproducción al volver al inicio
+            iframeElement.src = ""; 
+            document.title = "RodreyFlix - Series y Películas";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // 4. FUNCIÓN PARA MOSTRAR LA VISTA DE DETALLES
         function showDetailsView(id) {
-            currentContentId = id;
             homeView.style.display = 'none';
             detailsView.style.display = 'block';
             loadContent(id);
@@ -304,18 +308,17 @@
                 mainTitle.textContent = "Contenido no encontrado.";
                 seriesTitle.textContent = "Error 404";
                 seriesDescription.textContent = "El ID del contenido es inválido.";
-                iframeElement.src = ""; // Asegura que no se cargue nada
+                iframeElement.src = "";
                 episodesListDiv.innerHTML = '';
                 return;
             }
 
-            // Actualizar Títulos y Descripción
             document.title = data.title + " | RodreyFlix";
             mainTitle.textContent = data.title;
             seriesTitle.textContent = data.title;
             seriesDescription.textContent = data.description;
-            episodesListDiv.innerHTML = ''; // Limpiar la lista anterior
-            iframeElement.src = ""; // NO INICIAR EL VIDEO AÚN
+            episodesListDiv.innerHTML = ''; 
+            iframeElement.src = ""; 
 
             // Generar la lista de capítulos/servidores
             data.episodes.forEach((episode, index) => {
@@ -323,23 +326,19 @@
                 item.classList.add('episode-item');
                 item.textContent = episode.title;
                 
-                // Asignar evento click
                 item.addEventListener('click', () => {
-                    // Cargar el video al hacer clic
                     iframeElement.src = episode.iframeSrc; 
                     
-                    // Actualizar estado activo
                     document.querySelectorAll('.episode-item').forEach(i => i.classList.remove('current-active'));
                     item.classList.add('current-active');
                     
-                    // Opcional: Desplazar arriba al reproductor
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
                 episodesListDiv.appendChild(item);
             });
             
-            // Opcional: Cargar y marcar el primer episodio si existe
+            // Cargar y marcar el primer episodio por defecto
             if (data.episodes.length > 0) {
                 iframeElement.src = data.episodes[0].iframeSrc;
                 episodesListDiv.firstChild.classList.add('current-active');
@@ -359,7 +358,6 @@
                     <div class="movie-card-title">${movie.title}</div>
                 `;
                 
-                // Añadir evento para mostrar detalles al hacer clic en el póster
                 card.addEventListener('click', () => showDetailsView(movie.id));
                 
                 gridContainer.appendChild(card);
@@ -369,7 +367,7 @@
         // 7. INICIO DE LA APLICACIÓN
         document.addEventListener('DOMContentLoaded', () => {
             renderGrid();
-            showHomeView(); // Asegura que la cuadrícula es visible al inicio
+            showHomeView(); 
         });
     </script>
 </body>
