@@ -53,7 +53,7 @@
             padding: 8px 15px;
             border: 1px solid #444;
             border-radius: 5px;
-            margin-right: 10px; /* Espacio antes del input */
+            margin-right: 10px; 
             transition: background-color 0.3s;
         }
         .about-link:hover {
@@ -93,14 +93,19 @@
             z-index: 90;
         }
 
-        /* --- CONTENEDORES Y GRID (resto de estilos omitidos por brevedad, mantener los originales) --- */
-        /* ... (mantener los estilos de .container, .movies-grid, .movie-card, .video-player, etc.) ... */
-
+        /* --- CONTENEDORES Y GRID --- */
         .container {
             max-width: 1200px; 
             width: 95%; 
             margin: 20px auto;
             padding: 0 20px;
+        }
+
+        #search-status {
+            color: var(--color-primary);
+            font-size: 1.2em;
+            margin-top: 15px;
+            font-weight: bold;
         }
         
         #details-view {
@@ -197,7 +202,7 @@
             border-left: 4px solid var(--color-primary);
         }
 
-        /* Modal y WhatsApp (estilos omitidos por brevedad, mantener los originales) */
+        /* Modal y WhatsApp (Mantener estilos originales) */
         .modal {
             display: none; 
             position: fixed; 
@@ -270,12 +275,13 @@
         <div class="logo" onclick="showHomeView()">RODREYFLIX</div>
         <div class="header-controls">
             <a href="#" class="about-link" onclick="openModal()">Acerca de</a>
-            <input type="text" placeholder="Buscar..." style="margin-left: 10px;">
+            <input type="text" id="search-input" placeholder="Buscar..." onkeyup="handleSearch()">
         </div>
     </header>
 
     <div class="container" id="home-view">
-        <h1>Últimos Títulos Destacados</h1>
+        <h1 id="home-title">Últimos Títulos Destacados</h1>
+        <p id="search-status" style="display:none;">Resultados de la búsqueda.</p>
         
         <div class="movies-grid" id="movies-grid">
             </div>
@@ -339,7 +345,7 @@
         const CONTENT_DATA = [
             {
                 id: "culpa_mia",
-                poster: "https://i.postimg.cc/NF8bYqR7/culp.png", // Nueva portada
+                poster: "https://i.postimg.cc/NF8bYqR7/culp.png",
                 title: "Culpa Mía - Película Completa",
                 description: "Noah debe dejar su ciudad, novio y amigas para mudarse a la mansión de William Leister, el nuevo y rico marido de su madre. Allí conoce a Nick, su nuevo hermanastro.",
                 rating: "8.2",
@@ -361,13 +367,21 @@
         const seriesDescription = document.getElementById('series-description');
         const episodesListDiv = document.getElementById('episodes-list');
         const aboutModal = document.getElementById('about-modal');
+        const homeTitle = document.getElementById('home-title');
+        const searchStatus = document.getElementById('search-status');
+        const searchInput = document.getElementById('search-input'); // Nuevo elemento
 
-        // 3. Funciones de Navegación
+        // 3. Funciones de Navegación (sin cambios)
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
-            iframeElement.src = ""; // Detener la reproducción
+            iframeElement.src = ""; 
             document.title = "RodreyFlix - Series y Películas";
+            // Asegurarse de que al volver, la cuadrícula se renderiza completa
+            renderGrid(CONTENT_DATA); 
+            homeTitle.style.display = 'block';
+            searchStatus.style.display = 'none';
+            searchInput.value = ''; // Limpiar el campo de búsqueda
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -377,7 +391,7 @@
             loadContent(id);
         }
         
-        // 4. Funciones del Modal "Acerca de"
+        // 4. Funciones del Modal "Acerca de" (sin cambios)
         function openModal() {
             aboutModal.style.display = 'block';
         }
@@ -386,14 +400,13 @@
             aboutModal.style.display = 'none';
         }
 
-        // Cierra el modal si el usuario hace clic fuera de él
         window.onclick = function(event) {
             if (event.target == aboutModal) {
                 closeModal();
             }
         }
         
-        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO
+        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO (sin cambios)
         function loadContent(id) {
             const data = CONTENT_DATA.find(item => item.id === id);
 
@@ -430,16 +443,23 @@
                 episodesListDiv.appendChild(item);
             });
             
-            // Cargar y marcar el primer episodio por defecto
             if (data.episodes.length > 0) {
                 iframeElement.src = data.episodes[0].iframeSrc;
                 episodesListDiv.firstChild.classList.add('current-active');
             }
         }
         
-        // 6. FUNCIÓN PARA INYECTAR LA CUADRÍCULA AL INICIO
-        function renderGrid() {
-            CONTENT_DATA.forEach(movie => {
+        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA
+        function renderGrid(dataArray) {
+            gridContainer.innerHTML = ''; // Limpiar la cuadrícula existente
+            
+            if (dataArray.length === 0) {
+                searchStatus.textContent = "❌ Lo siento, no se encontraron resultados.";
+                searchStatus.style.display = 'block';
+                return;
+            }
+            
+            dataArray.forEach(movie => {
                 const card = document.createElement('div');
                 card.classList.add('movie-card');
                 card.setAttribute('data-id', movie.id);
@@ -454,11 +474,40 @@
                 
                 gridContainer.appendChild(card);
             });
+            searchStatus.style.display = 'none';
+        }
+        
+        // 7. FUNCIÓN DE BÚSQUEDA (LA NUEVA LÓGICA)
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            showHomeView(); // Asegura que estemos en la vista de inicio
+
+            if (query === '') {
+                // Si el campo está vacío, mostrar todo
+                renderGrid(CONTENT_DATA);
+                homeTitle.style.display = 'block';
+                return;
+            }
+
+            // Filtrar la base de datos
+            const results = CONTENT_DATA.filter(item => 
+                item.title.toLowerCase().includes(query)
+            );
+
+            // Renderizar solo los resultados
+            renderGrid(results);
+            
+            // Actualizar el título de la vista
+            homeTitle.style.display = 'none';
+            if (results.length > 0) {
+                searchStatus.textContent = `✅ Mostrando ${results.length} resultado(s) para "${query}".`;
+            }
+            searchStatus.style.display = 'block';
         }
 
-        // 7. INICIO DE LA APLICACIÓN
+        // 8. INICIO DE LA APLICACIÓN
         document.addEventListener('DOMContentLoaded', () => {
-            renderGrid();
+            renderGrid(CONTENT_DATA);
             showHomeView(); 
         });
     </script>
