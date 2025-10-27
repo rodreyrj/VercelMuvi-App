@@ -354,7 +354,7 @@
     </footer>
 
     <script>
-        // 1. BASE DE DATOS DE CONTENIDO: TITULOS ACTUALIZADOS
+        // 1. BASE DE DATOS DE CONTENIDO:
         const CONTENT_DATA = [
             {
                 id: "culpa_mia",
@@ -370,7 +370,6 @@
                 ]
             },
             {
-                // ID y Title corregidos a mayúscula inicial para mejor presentación y búsqueda
                 id: "bunker_el_refugio_atomico", 
                 poster: "https://i.postimg.cc/CxhsvzCf/show-3d5edfff275ad179a4be48a206cd2fb3.jpg",
                 title: "Bunker El Refugio Atomico",
@@ -378,13 +377,12 @@
                 rating: "6.5",
                 flag: "🇺🇸",
                 episodes: [
-                    // Título de episodio corregido
                     { title: "Billionaires Capítulo 1", iframeSrc: "https://powvideo.org/embed-kits42jd338b-954x562.html" },
                 ]
             }
         ];
 
-        // 2. Elementos del DOM (El resto se mantiene igual)
+        // 2. Elementos del DOM
         const homeView = document.getElementById('home-view');
         const detailsView = document.getElementById('details-view');
         const gridContainer = document.getElementById('movies-grid');
@@ -398,7 +396,7 @@
         const searchStatus = document.getElementById('search-status');
         const searchInput = document.getElementById('search-input'); 
 
-        // 3. Funciones de Navegación (Se mantiene igual)
+        // 3. Funciones de Navegación
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
@@ -417,7 +415,7 @@
             loadContent(id);
         }
         
-        // 4. Funciones del Modal "Acerca de" (Se mantiene igual)
+        // 4. Funciones del Modal "Acerca de"
         function openModal() {
             aboutModal.style.display = 'block';
         }
@@ -432,7 +430,7 @@
             }
         }
         
-        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO (Se mantiene igual)
+        // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO
         function loadContent(id) {
             const data = CONTENT_DATA.find(item => item.id === id);
 
@@ -475,7 +473,7 @@
             }
         }
         
-        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA (Se mantiene igual)
+        // 6. FUNCIÓN PRINCIPAL PARA INYECTAR LA CUADRÍCULA
         function renderGrid(dataArray) {
             gridContainer.innerHTML = ''; 
             
@@ -503,7 +501,7 @@
             searchStatus.style.display = 'none';
         }
         
-        // 7. FUNCIÓN DE BÚSQUEDA (Se mantiene igual)
+        // 7. FUNCIÓN DE BÚSQUEDA
         function handleSearch() {
             const query = searchInput.value.toLowerCase().trim();
             
@@ -530,17 +528,15 @@
             searchStatus.style.display = 'block';
         }
 
-        // 8. FUNCIONES DE PROTECCIÓN DE CÓDIGO AÑADIDAS
+        // 8. FUNCIONES DE PROTECCIÓN DE CÓDIGO (SILENCIOSAS)
         document.addEventListener('contextmenu', event => {
-            event.preventDefault(); // Bloquea el clic derecho
-            alert("Acceso al menú contextual bloqueado.");
+            event.preventDefault(); // Bloquea el clic derecho sin mensaje
         });
 
         document.addEventListener('keydown', event => {
-            // Bloquea F12 (código 123) y combinaciones comunes de vista de código fuente (Ctrl+U, Ctrl+Shift+I, etc.)
+            // Bloquea F12 (código 123) y combinaciones comunes de vista de código fuente
             if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 'u')) {
-                event.preventDefault();
-                alert("La visualización del código fuente está bloqueada.");
+                event.preventDefault(); // Bloquea sin mensaje
             }
         });
 
