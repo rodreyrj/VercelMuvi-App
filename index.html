@@ -6,7 +6,7 @@
     <title>RodreyFlix - Series y Películas</title>
 
     <style>
-        /* --- ESTILOS CSS MEJORADOS --- */
+        /* --- ESTILOS BASE Y VARIABLES --- */
         :root {
             --color-primary: #e50914; 
             --color-secondary: #000000;
@@ -22,11 +22,12 @@
             background-color: var(--color-bg);
             color: var(--color-text);
             min-height: 100vh;
-            /* Esta línea es clave: fuerza un scroll horizontal si es necesario */
             min-width: 100%; 
+            /* Espacio para el footer fijo (Ajustar si el footer cambia de altura) */
+            padding-bottom: 50px; 
         }
 
-        /* Encabezado */
+        /* --- ENCABEZADO Y PIE DE PÁGINA FIJOS --- */
         header {
             background: linear-gradient(to right, #000, #1c1c1c); 
             padding: 15px 30px;
@@ -34,7 +35,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--color-primary);
-            position: sticky;
+            position: sticky; /* Header fijo en la parte superior */
             top: 0;
             z-index: 100; 
         }
@@ -46,19 +47,35 @@
             cursor: pointer;
             letter-spacing: 1px;
         }
-        
-        .search-box input {
+
+        .about-link {
+            color: var(--color-text);
+            text-decoration: none;
             padding: 8px 15px;
             border: 1px solid #444;
-            border-radius: 20px; 
-            background-color: #222;
-            color: var(--color-text);
-            width: 200px;
+            border-radius: 5px;
+            margin-left: 20px;
+            transition: background-color 0.3s;
+        }
+        .about-link:hover {
+            background-color: #333;
+        }
+        
+        footer {
+            position: fixed; /* Footer fijo en la parte inferior */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 15px;
+            background-color: var(--color-secondary);
+            color: #888;
+            font-size: 0.9em;
+            z-index: 90;
         }
 
-        /* Contenedores Principales */
+        /* --- CONTENEDORES Y GRID --- */
         .container {
-            /* Aseguramos que el contenedor siempre ocupe el ancho máximo */
             max-width: 1200px; 
             width: 95%; 
             margin: 20px auto;
@@ -71,10 +88,8 @@
             margin: 20px auto;
         }
         
-        /* --- ESTILOS DE LA CUADRÍCULA (HOME) --- */
         .movies-grid {
             display: grid;
-            /* CLAVE: Mantenemos el diseño de escritorio (al menos 6 columnas) */
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
             gap: 25px;
         }
@@ -86,7 +101,6 @@
             text-decoration: none;
             color: var(--color-text);
         }
-        
         .movie-card:hover {
             transform: scale(1.08); 
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
@@ -110,7 +124,7 @@
             font-weight: bold;
             font-size: 0.9em;
         }
-
+        
         /* --- ESTILOS DE LA VISTA DE DETALLES --- */
         .video-player {
             position: relative;
@@ -119,14 +133,10 @@
             overflow: hidden;
             background: var(--color-card-bg);
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
             margin-bottom: 30px;
         }
-
         .video-player iframe {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             border: none;
@@ -140,18 +150,16 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
-            transition: background-color 0.3s, transform 0.1s;
+            transition: background-color 0.3s;
             margin-bottom: 20px;
         }
         .back-button:hover {
             background-color: var(--color-primary);
-            transform: scale(1.02);
         }
         
         .series-card {
             background-color: var(--color-card-bg);
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             padding: 30px;
         }
         
@@ -169,13 +177,71 @@
             border-left: 4px solid var(--color-primary);
         }
 
-        footer {
+        /* --- MODAL "ACERCA DE" --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 200; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: var(--color-card-bg);
+            margin: 5% auto; 
+            padding: 30px;
+            border: 1px solid #444;
+            width: 80%; 
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover {
+            color: var(--color-primary);
+        }
+        .modal-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        .modal-content li {
+            padding: 5px 0;
+        }
+        .modal-content a {
+            color: var(--color-primary);
+        }
+
+        /* --- BOTÓN FLOTANTE WHATSAPP --- */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 70px; /* Separado del footer fijo */
+            right: 20px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
             text-align: center;
-            padding: 15px;
-            margin-top: 30px;
-            background-color: var(--color-secondary);
-            color: #888;
-            font-size: 0.9em;
+            font-size: 28px; /* Icono más grande */
+            line-height: 60px; 
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -183,8 +249,9 @@
 
     <header>
         <div class="logo" onclick="showHomeView()">RODREYFLIX</div>
-        <div class="search-box">
-            <input type="text" placeholder="Buscar..." disabled>
+        <div>
+            <a href="#" class="about-link" onclick="openModal()">Acerca de</a>
+            <input type="text" placeholder="Buscar..." disabled style="margin-left: 10px; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; background: #222; color: white;">
         </div>
     </header>
 
@@ -224,53 +291,45 @@
         </div>
     </div>
 
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2>Acerca de RodreyFlix</h2>
+            <p>RodreyFlix es una plataforma personal para la organización y reproducción de series y películas.</p>
+            <p><strong>Información de Contacto:</strong></p>
+            <ul>
+                <li><strong>Teléfono:</strong> +123 456 7890 (Ejemplo)</li>
+                <li><strong>WhatsApp:</strong> <a href="https://wa.me/+1234567890?text=Hola,%20quisiera%20pedir%20una%20serie." target="_blank">Enviar WhatsApp</a></li>
+                <li><strong>Correo:</strong> contacto@rodreyflix.com (Ejemplo)</li>
+            </ul>
+            <p>Para pedir una serie o película, utiliza el botón flotante de WhatsApp. ¡Gracias por tu apoyo!</p>
+        </div>
+    </div>
+
+    <a href="https://wa.me/+1234567890?text=Hola,%20puedo%20pedir%20serie%20aquí." 
+       class="whatsapp-float" target="_blank" title="Pedir serie aquí">
+        💬
+    </a>
+
     <footer>
         &copy; 2024 RodreyFlix. Copy Rating: RodreyRJ. Todos los derechos reservados.
     </footer>
 
     <script>
-        // 1. BASE DE DATOS DE CONTENIDO: Fácil de modificar
+        // 1. BASE DE DATOS DE CONTENIDO: SOLO CULPA MÍA
         const CONTENT_DATA = [
-            // El video que proporcionaste inicialmente (M34)
             {
-                id: "m34",
-                poster: "//img.powvideo.net/scap/49/01/01224/2rrogwot4b90_t.jpg",
-                title: "M34 CVLP4 1080 - LA SERIE",
-                description: "La primera temporada del éxito M34. Una historia de acción y suspenso en alta definición.",
-                rating: "7.5",
+                id: "culpa_mia",
+                poster: "https://i.postimg.cc/NF8bYqR7/culp.png", // Nueva portada
+                title: "Culpa Mía - Película Completa",
+                description: "Noah debe dejar su ciudad, novio y amigas para mudarse a la mansión de William Leister, el nuevo y rico marido de su madre. Allí conoce a Nick, su nuevo hermanastro.",
+                rating: "8.2",
                 flag: "🇪🇸",
                 episodes: [
-                    { title: "Episodio 1: Piloto (Powvideo)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
-                    { title: "Episodio 2: El Despertar", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
-                    { title: "Episodio 3: La Confrontación", iframeSrc: "https://powvideo.org/embed-TERCER-VIDEO-EJEMPLO-3.html" }
-                ]
-            },
-            // Ejemplo de otra película
-            {
-                id: "bang",
-                poster: "", 
-                title: "Bang: Storm of Bullets",
-                description: "Una intensa película de acción sobre un ex-soldado que busca venganza. Estreno 2024.",
-                rating: "6.7",
-                flag: "🇺🇸",
-                episodes: [
-                    { title: "Opción 1: Servidor HD (Powvideo)", iframeSrc: "https://powvideo.org/embed-LINK-DE-BANG-HD.html" },
-                    { title: "Opción 2: Servidor SD (Alternativo)", iframeSrc: "https://otravideo.org/embed-LINK-DE-BANG-SD.html" }
-                ]
-            },
-            // Ejemplo de otra película
-            {
-                id: "ship",
-                poster: "", 
-                title: "Ship of the Damned",
-                description: "Aventura y terror en alta mar, con efectos especiales impresionantes.",
-                rating: "4.0",
-                flag: "🇺🇸",
-                episodes: [
-                    { title: "Película Completa", iframeSrc: "https://powvideo.org/embed-LINK-DE-SHIP.html" }
+                    { title: "Servidor 1: Temporada 1 - HD (Powvideo)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
+                    { title: "Servidor 2: Temporada 1 - SD (Alternativo)", iframeSrc: "https://powvideo.org/embed-OTRO-VIDEO-EJEMPLO-2.html" },
                 ]
             }
-            // ¡AÑADE TUS OTROS TÍTULOS AQUÍ!
         ];
 
         // 2. Elementos del DOM
@@ -282,22 +341,37 @@
         const seriesTitle = document.getElementById('series-title');
         const seriesDescription = document.getElementById('series-description');
         const episodesListDiv = document.getElementById('episodes-list');
+        const aboutModal = document.getElementById('about-modal');
 
-        // 3. FUNCIÓN PARA MOSTRAR LA CUADRÍCULA (HOME)
+        // 3. Funciones de Navegación
         function showHomeView() {
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
-            // Limpiar el iframe para detener la reproducción al volver al inicio
-            iframeElement.src = ""; 
+            iframeElement.src = ""; // Detener la reproducción
             document.title = "RodreyFlix - Series y Películas";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 4. FUNCIÓN PARA MOSTRAR LA VISTA DE DETALLES
         function showDetailsView(id) {
             homeView.style.display = 'none';
             detailsView.style.display = 'block';
             loadContent(id);
+        }
+        
+        // 4. Funciones del Modal "Acerca de"
+        function openModal() {
+            aboutModal.style.display = 'block';
+        }
+
+        function closeModal() {
+            aboutModal.style.display = 'none';
+        }
+
+        // Cierra el modal si el usuario hace clic fuera de él
+        window.onclick = function(event) {
+            if (event.target == aboutModal) {
+                closeModal();
+            }
         }
         
         // 5. FUNCIÓN PARA CARGAR LOS DATOS Y EL VIDEO
@@ -320,7 +394,6 @@
             episodesListDiv.innerHTML = ''; 
             iframeElement.src = ""; 
 
-            // Generar la lista de capítulos/servidores
             data.episodes.forEach((episode, index) => {
                 const item = document.createElement('div');
                 item.classList.add('episode-item');
