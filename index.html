@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200, initial-scale=0.5"> 
-    <title>RodreyFlix - Series y Películas</title>
+    <title>VercelMuvi</title>
 
     <style>
         /* --- ESTILOS CSS (INICIO) --- */
@@ -278,7 +278,7 @@
 <body>
 
     <header>
-        <div class="logo" onclick="showHomeView()">RODREYFLIX</div>
+        <div class="logo" onclick="showHomeView()">VercelMuvi</div>
         <div class="header-controls">
             <a href="#" class="about-link" onclick="openModal()">Acerca de</a>
             <input type="text" id="search-input" placeholder="Buscar..." onkeyup="handleSearch()">
@@ -325,8 +325,8 @@
     <div id="about-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
-            <h2>Acerca de RodreyFlix</h2>
-            <p>RodreyFlix es una plataforma personal para la organización y reproducción de series y películas.</p>
+            <h2>Acerca de VercelMuvi</h2>
+            <p>VercelMuvi es una plataforma personal para la organización y reproducción de series y películas.</p>
             
             <p>
                 <strong>Portafolio del Desarrollador RodreyRJ:</strong>
@@ -336,21 +336,21 @@
             
             <p><strong>Información de Contacto:</strong></p>
             <ul>
-                <li><strong>Teléfono:</strong> +123 456 7890 (Ejemplo)</li>
-                <li><strong>WhatsApp:</strong> <a href="https://wa.me/+1234567890?text=Hola,%20quisiera%20pedir%20una%20serie." target="_blank">Enviar WhatsApp</a></li>
-                <li><strong>Correo:</strong> contacto@rodreyflix.com (Ejemplo)</li>
+                <li><strong>Teléfono:</strong> +5356639178</li>
+                <li><strong>WhatsApp:</strong> <a href="https://wa.me/+5356639178?text=Hola,%20quisiera%20pedir%20una%20serie." target="_blank">Enviar WhatsApp</a></li>
+                <li><strong>Correo:</strong> contacto@rodreyrj@gmail.com (Ejemplo)</li>
             </ul>
             <p>Para pedir una serie o película, utiliza el botón flotante de WhatsApp. ¡Gracias por tu apoyo!</p>
         </div>
     </div>
 
-    <a href="https://wa.me/+1234567890?text=Hola,%20puedo%20pedir%20serie%20aquí." 
+    <a href="https://wa.me/+556639178?text=Hola,%20puedo%20pedir%20serie%20aquí." 
        class="whatsapp-float" target="_blank" title="Pedir serie aquí">
         💬
     </a>
 
     <footer>
-        &copy; 2024 RodreyFlix. Copy Rating: RodreyRJ | Desarrollado por <a href="https://rodreyrj.vercel.app/" target="_blank" style="color: #888; text-decoration: none;">RodreyRJ</a>
+        &copy; 2025 VercelMuvi . Copy Rating: RodreyRJ | Desarrollado por <a href="https://rodreyrj.vercel.app/" target="_blank" style="color: #888; text-decoration: none;">RodreyRJ</a>
     </footer>
 
     <script>
@@ -401,7 +401,7 @@
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
             iframeElement.src = ""; 
-            document.title = "RodreyFlix - Series y Películas";
+            document.title = "VercelMuvi - Series y Películas";
             renderGrid(CONTENT_DATA); 
             homeTitle.style.display = 'block';
             searchStatus.style.display = 'none';
@@ -443,7 +443,7 @@
                 return;
             }
 
-            document.title = data.title + " | RodreyFlix";
+            document.title = data.title + " | VercelMuvi";
             mainTitle.textContent = data.title;
             seriesTitle.textContent = data.title;
             seriesDescription.textContent = data.description;
@@ -549,3 +549,4 @@
     </script>
 </body>
 </html>
+
