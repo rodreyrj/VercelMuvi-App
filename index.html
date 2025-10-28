@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200, initial-scale=0.5"> 
-    <title>VercelMuvi</title>
-
-    <style>
+    <title>VercelStream</title> <style>
         /* --- ESTILOS CSS (INICIO) --- */
         :root {
-            --color-primary: #e50914; 
+            --color-primary: #00AEFF; /* ¡NUEVO COLOR AZUL VIBRANTE! */
             --color-secondary: #000000;
             --color-text: #ffffff;
             --color-bg: #0a0a0a; 
@@ -278,8 +276,7 @@
 <body>
 
     <header>
-        <div class="logo" onclick="showHomeView()">VercelMuvi</div>
-        <div class="header-controls">
+        <div class="logo" onclick="showHomeView()">VercelStream</div> <div class="header-controls">
             <a href="#" class="about-link" onclick="openModal()">Acerca de</a>
             <input type="text" id="search-input" placeholder="Buscar..." onkeyup="handleSearch()">
         </div>
@@ -325,8 +322,19 @@
     <div id="about-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
-            <h2>Acerca de VercelMuvi</h2>
-            <p>VercelMuvi es una plataforma personal para la organización y reproducción de series y películas.</p>
+            <h2>Acerca de VercelStream</h2> <p>
+                ¡Bienvenido a **VercelStream**! Tu plataforma personal para ver y **descargar** tus series y películas favoritas.
+                <br>
+                Disfruta de la mejor calidad de reproducción directamente en tus dispositivos.
+            </p>
+            
+            <p>
+                **⚙️ Descarga Directa con XDM:**
+                <br>
+                Para descargar el contenido, te recomendamos usar la herramienta **<a href="https://github.com/subhra74/xdm/releases/download/7.2.11/xdm-setup.msi" target="_blank" style="color: var(--color-primary); font-weight: bold;">Xtreme Download Manager (XDM)</a>**.
+                <br>
+                Instala XDM y haz clic en el botón de reproducción, el gestor de descarga capturará el enlace automáticamente.
+            </p>
             
             <p>
                 <strong>Portafolio del Desarrollador RodreyRJ:</strong>
@@ -350,8 +358,7 @@
     </a>
 
     <footer>
-        &copy; 2025 VercelMuvi . Copy Rating: RodreyRJ | Desarrollado por <a href="https://rodreyrj.vercel.app/" target="_blank" style="color: #888; text-decoration: none;">RodreyRJ</a>
-    </footer>
+        &copy; 2025 VercelStream . Copy Rating: RodreyRJ | Desarrollado por <a href="https://rodreyrj.vercel.app/" target="_blank" style="color: #888; text-decoration: none;">RodreyRJ</a> </footer>
 
     <script>
         // 1. BASE DE DATOS DE CONTENIDO:
@@ -361,7 +368,7 @@
                 poster: "https://i.postimg.cc/NF8bYqR7/culp.png",
                 title: "Culpa Mía - Película Completa",
                 description: "Noah debe dejar su ciudad, novio y amigas para mudarse a la mansión de William Leister, el nuevo y rico marido de su madre. Allí conoce a Nick, su nuevo hermanastro.",
-                rating: "8,4",
+                rating: "8.4",
                 flag: "🇪🇸",
                 episodes: [
                     { title: "Culpa Mía (HD)", iframeSrc: "https://powvideo.org/embed-2rrogwot4b90-954x562.html" },
@@ -387,7 +394,10 @@
                     { title: "Billionaires Capítulo 8 fin", iframeSrc: "https://powvideo.org/embed-nx440adiu2mw-954x562.html" }
                 ]
             }
-          
+            
+            // Si deseas agregar más contenido, añade una COMA (,) en la línea de arriba 
+            // y pega tu nuevo objeto de serie/película aquí.
+            
         ];
 
         // 2. Elementos del DOM
@@ -409,7 +419,7 @@
             homeView.style.display = 'block';
             detailsView.style.display = 'none';
             iframeElement.src = ""; 
-            document.title = "VercelMuvi - Series y Películas";
+            document.title = "VercelStream - Series y Películas"; // ¡NOMBRE CAMBIADO!
             renderGrid(CONTENT_DATA); 
             homeTitle.style.display = 'block';
             searchStatus.style.display = 'none';
@@ -451,7 +461,7 @@
                 return;
             }
 
-            document.title = data.title + " | VercelMuvi";
+            document.title = data.title + " | VercelStream"; // ¡NOMBRE CAMBIADO!
             mainTitle.textContent = data.title;
             seriesTitle.textContent = data.title;
             seriesDescription.textContent = data.description;
@@ -557,7 +567,6 @@
     </script>
 </body>
 </html>
-
 
 
 
